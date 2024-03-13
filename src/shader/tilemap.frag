@@ -9,5 +9,5 @@ void main(void) {
     vec4 color;
     %GET_COLOR%
 
-    gl_FragColor = color * vColor;
+    gl_FragColor = texture2D(uTextures[0], vRegion) * vColor; // texture2D(uTextures[0], vec2(0.5,0.5)); // * vColor
 }

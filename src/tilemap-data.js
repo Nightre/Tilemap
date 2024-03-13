@@ -1,5 +1,5 @@
 
-const MAX_SIZE = 1000 // 防止用户瞎搞
+const MAX_SIZE = 3000
 
 class TilemapData {
     constructor(){
@@ -9,8 +9,8 @@ class TilemapData {
     setSize(x, y){
         
         let newSize = {
-            x:constraintSize(x),
-            y:constraintSize(y)
+            x:this.constraintSize(x),
+            y:this.constraintSize(y)
         }
         if (newSize.x == this.size.x && newSize.y == this.size.y) {
             // 新大小与原本大小一样，不修改

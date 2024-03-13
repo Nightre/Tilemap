@@ -1,3 +1,4 @@
+import TilemapRender from "./tilemap-render"
 import TileSet from "./tilemap-tileset"
 
 const ZERO_VEC2 = { x: 0, y: 0 }
@@ -27,21 +28,19 @@ class Tilemap {
             y: Math.floor(this.camera.y / this.tileSize.y)
         }
     }
-    render(projectionMatrix) {
+    draw(projectionMatrix) {
         this.calculation()
-        let offsetY, offsetX = 0
         for (let x = 0; x < this.drawTileNum.x; x++) {
             for (let y = 0; y < this.drawTileNum.y; x++) {
-                this.renderTile(
-                    offsetX, offsetY,
+                this.drawTile(
+                    this.offset.x, this.offset.y,
                     x + this.tileStart.x, y + this.tileStart.y
                 )
-                offsetX += this.tileSize.x
+                this.offset.x += this.tileSize.x
             }
-            offsetY += this.tileSize.y
+            this.offset.y += this.tileSize.y
         }
-        this.render.setOffset(this.offset)
-        this.render.flush(projectionMatrix)
+        this.draw.flush(projectionMatrix)
     }
     /**
      * 绘制一个tile
@@ -50,7 +49,7 @@ class Tilemap {
      * @param {Number} x 数据索引
      * @param {Number} y 数据索引
      */
-    renderTile(offsetX, offsetY, x, y) {
+    drawTile(offsetX, offsetY, x, y) {
 
     }
 }

@@ -1,6 +1,7 @@
 
 import Scratch from "Scratch";
 import TilemapLogic from "./tilemap-logic";
+import { getCallerInfo, getSkinByName } from "./utils";
 
 
 /**
@@ -15,7 +16,7 @@ import TilemapLogic from "./tilemap-logic";
  */
 
 class HelloWorld {
-    constructor(runtime){
+    constructor(runtime) {
         this.runtime = runtime ?? Scratch.vm.runtime
         this.tilemap = new TilemapLogic(this.runtime)
     }
@@ -33,8 +34,19 @@ class HelloWorld {
         };
     }
 
-    hello(args) {
-        console.log(arguments)
+    hello(args, utils) {
+        const skin = getSkinByName(utils, "造型1")
+        this.tilemap.render.startRegion()
+        
+        this.tilemap.render.addTile(
+            // TODO:纹理大小，纹理加载
+            this.tilemap.render.getTexture(skin, [50,50]),
+            100, 50,
+            0, 0, 1, 1, 0, 0, 0xFFFF00FF
+        )
+        this.tilemap.render.flush()
+
+
         return 1;
     }
 }
