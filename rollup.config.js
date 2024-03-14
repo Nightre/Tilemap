@@ -1,6 +1,6 @@
 import server from 'rollup-plugin-server'
 import { string } from "rollup-plugin-string";
-
+import { uglify } from "rollup-plugin-uglify";
 export default {
     input: `src/index.js`,
     external: ['Scratch'],
@@ -15,6 +15,7 @@ export default {
         },
     ],
     plugins: [
+        //uglify(),
         string({
             include: [
                 "**/*.frag",

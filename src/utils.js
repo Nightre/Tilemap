@@ -1,3 +1,5 @@
+import Scratch from "Scratch";
+
 export const createBuffer = (gl, bufferType, size, usage) => {
     var buffer = gl.createBuffer();
     gl.bindBuffer(bufferType, buffer);
@@ -16,6 +18,27 @@ export const getCallerInfo = (u) => {
 export const getSkinByName = (u, name) => {
     const skinId = u.target.sprite.costumes_.filter(obj => obj.name === name)[0].skinId
     const skin = u.runtime.renderer._allSkins[skinId]
-    // TODO:先加载
     return skin
+}
+// scratch 用的 4*4 矩阵（twgl.m4），但只加工二维的基向量和平移，减小开销
+export const matrixProcessingVector = (m, x, y) => {
+    return {
+        x: x * m[0] + y * m[4] + m[12],
+        y: x * m[1] + y * m[5] + m[13],
+    }
+}
+
+export const range = (v, min, max) => {
+    return Math.max(min, Math.min(v, max))
+}
+
+export const getPosFromScratch = (args) => {
+    return {
+        x: floorNum(args.POS_X) - 1,
+        y: floorNum(args.POS_Y) - 1
+    }
+}
+
+export const floorNum = (v) => {
+    return Math.floor(Scratch.Cast.toNumber(v))
 }

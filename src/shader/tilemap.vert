@@ -5,7 +5,7 @@ attribute vec2 aRegion;
 attribute float aTextureId;
 attribute vec4 aColor;
 
-uniform mat4 uProjectionMatrix;
+uniform mat4 uProjectionModel;
 
 varying vec2 vRegion;
 varying float vTextureId;
@@ -15,5 +15,5 @@ void main(void) {
     vRegion = aRegion;
     vTextureId = aTextureId;
     vColor = aColor;
-    gl_Position = uProjectionMatrix * vec4(aPosition, 0.0, 1.0);
+    gl_Position = uProjectionModel * vec4(aPosition, 0.0, 1.0);
 }

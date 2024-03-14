@@ -6,71 +6,84 @@ const INDEX_PER_TILE = 6
 //                       aPosition  aRegion   aTextureId  aColor
 const BYTES_PER_VERTEX = (4 * 2) + (4 * 2) + (4) + (4)
 const FLOAT32_PER_TILE = VERTEX_PER_TILE * BYTES_PER_VERTEX / Float32Array.BYTES_PER_ELEMENT
+
+const drawableAttribute = {
+    enabledEffects:false,
+    _direction:90
+}
+
 class TilemapRender {
     constructor(runtime) {
-        this.render = runtime.renderer
+        this._render = runtime.renderer
 
-        this.twgl = this.render.exports.twgl
+        this._twgl = this._render.exports.twgl
         /**@type {WebGLRenderingContext} */
-        this.gl = this.render.gl
+        this._gl = this._render.gl
 
-        this.MAX_TEXTURE_UNITS = this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS);
-        this.MAX_BATCH = Math.floor(2 ** 16 / 6)
+        this.MAX_TEXTURE_UNITS = this._gl.getParameter(this._gl.MAX_TEXTURE_IMAGE_UNITS);
+        this.MAX_BATCH = Math.floor(2 ** 16 / 6) // TODO
         this.TEXTURES_UNIT_ARRAY = Array.from({ length: this.MAX_TEXTURE_UNITS },
             (_, index) => index);
         // 待传入GPU的数量
         this.count = 0
 
-        const gl = this.gl
+        const gl = this._gl
 
-        this.program = createProgramInfo(gl, this.twgl, this.MAX_TEXTURE_UNITS)
+        this._program = createProgramInfo(gl, this._twgl, this.MAX_TEXTURE_UNITS)
 
-        this.vertexData = new ArrayBuffer(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH)
-        this.indexData = new Uint16Array(INDEX_PER_TILE * this.MAX_BATCH)
+        this._vertexData = new ArrayBuffer(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH)
+        console.log(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH / 1024 / 1024,'MB')
+        this._indexData = new Uint16Array(INDEX_PER_TILE * this.MAX_BATCH)
 
-        this.projectionModel = this.twgl.m4.identity()
+        this._projectionModel = this._twgl.m4.identity()
 
-        this.typedVertexFloat = new Float32Array(this.vertexData)
-        this.typedVertexUint = new Uint32Array(this.vertexData)
-        this.usedVertexData = 0
+        this._typedVertexFloat = new Float32Array(this._vertexData)
+        this._typedVertexUint = new Uint32Array(this._vertexData)
+        this._usedVertexData = 0
         // TODO:useage
 
-        this.indexBufferObject = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, this.indexData.byteLength, gl.STATIC_DRAW)
-        this.vertexBufferObject = createBuffer(gl, gl.ARRAY_BUFFER, this.vertexData.byteLength, gl.STATIC_DRAW)
-        gl.useProgram(this.program)
-        this.initIndexBuffer()
-        this.usedTextures = []
-        this.needBind = new Set()
+        this._indexBufferObject = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, this._indexData.byteLength, gl.STATIC_DRAW)
+        this._vertexBufferObject = createBuffer(gl, gl.ARRAY_BUFFER, this._vertexData.byteLength, gl.STATIC_DRAW)
+        gl.useProgram(this._program)
+        this._initIndexBuffer()
+        this._usedTextures = []
+        this._needBind = new Set()
     }
-    startRegion() {
-        this.beforFlush()
-        this.initVertexAttribute()
+    startRegion(modelMatrix) {
+        this._beforFlush()
+        this._initVertexAttribute()
+        const gl = this._gl
+        const projection = this._render._projection
+        const projectionModel = modelMatrix ? this._twgl.m4.multiply(modelMatrix, projection) : projection
+        gl.useProgram(this._program)
+        gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
+        gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projectionModel)
     }
     exitRegion() {
         // TODO
     }
-    useTexture(texture) {
-        let textureUnit = this.usedTextures.indexOf(texture)
+    _useTexture(texture) {
+        let textureUnit = this._usedTextures.indexOf(texture)
         if (textureUnit === -1) {
-            this.usedTextures.push(texture)
-            textureUnit = this.usedTextures.length - 1
-            this.needBind.add(textureUnit)
+            this._usedTextures.push(texture)
+            textureUnit = this._usedTextures.length - 1
+            this._needBind.add(textureUnit)
         }
         return textureUnit
     }
-    pushToVertexFloat(n) {
-        this.typedVertexFloat[this.usedVertexData++] = n
+    _pushToVertexFloat(n) {
+        this._typedVertexFloat[this._usedVertexData++] = n
     }
-    pushToVertexUint(n) {
-        this.typedVertexUint[this.usedVertexData++] = n
+    _pushToVertexUint(n) {
+        this._typedVertexUint[this._usedVertexData++] = n
     }
-    addVertex(x, y, u, v, textureUnit, color) {
-        this.pushToVertexFloat(x)
-        this.pushToVertexFloat(y)
-        this.pushToVertexFloat(u)
-        this.pushToVertexFloat(v)
-        this.pushToVertexFloat(textureUnit)
-        this.pushToVertexUint(color)
+    _addVertex(x, y, u, v, textureUnit, color) {
+        this._pushToVertexFloat(x)
+        this._pushToVertexFloat(y)
+        this._pushToVertexFloat(u)
+        this._pushToVertexFloat(v)
+        this._pushToVertexFloat(textureUnit)
+        this._pushToVertexUint(color)
     }
     addTile(
         texture,
@@ -83,11 +96,11 @@ class TilemapRender {
         if (this.count >= this.MAX_BATCH) {
             this.flush()
         }
-        if (this.usedTextures.length >= this.MAX_TEXTURE_UNITS) {
+        if (this._usedTextures.length >= this.MAX_TEXTURE_UNITS) {
             this.flush()
         }
         this.count++
-        const textureUnit = this.useTexture(texture)
+        const textureUnit = this._useTexture(texture)
 
         /**
          * 0-----1
@@ -101,47 +114,34 @@ class TilemapRender {
         const texU = u0 + u1
         const texV = v0 + v1
 
-        this.addVertex(offsetX, offsetY, u0, texV, textureUnit, color) // 0
-        this.addVertex(posX, offsetY, texU, texV, textureUnit, color) // 1
-        this.addVertex(posX, posY, texU, v0, textureUnit, color) // 2
-        this.addVertex(offsetX, posY, u0, v0, textureUnit, color) // 3
+        this._addVertex(offsetX, offsetY, u0, texV, textureUnit, color) // 0
+        this._addVertex(posX, offsetY, texU, texV, textureUnit, color) // 1
+        this._addVertex(posX, posY, texU, v0, textureUnit, color) // 2
+        this._addVertex(offsetX, posY, u0, v0, textureUnit, color) // 3
     }
-    flush(projectionMatrix = this.render._projection) {
-        const gl = this.gl
-        gl.useProgram(this.program) //TODO:测试用
+    flush() {
+        const gl = this._gl
 
-        this.twgl.bindFramebufferInfo(gl, null);
-        gl.clear(gl.COLOR_BUFFER_BIT)
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-
-
-        for (const unit of this.needBind) {
-            console.log("[tilemap] 绑定纹理", unit, this.usedTextures[unit])
+        for (const unit of this._needBind) {
             gl.activeTexture(gl.TEXTURE0 + unit);
-            gl.bindTexture(gl.TEXTURE_2D, this.usedTextures[unit]);
+            gl.bindTexture(gl.TEXTURE_2D, this._usedTextures[unit]);
         }
-        console.log("[tilemap] projectionMatrix", projectionMatrix, this.TEXTURES_UNIT_ARRAY)
 
-        // init uniform
-        gl.uniformMatrix4fv(gl.getUniformLocation(this.program, "uProjectionMatrix"), false, projectionMatrix)
-        gl.uniform1iv(gl.getUniformLocation(this.program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBufferObject)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBufferObject)
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this.typedVertexFloat.subarray(0, this.count * FLOAT32_PER_TILE))
-        
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject)
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._typedVertexFloat.subarray(0, this.count * FLOAT32_PER_TILE))        
         gl.drawElements(gl.TRIANGLES, this.count * INDEX_PER_TILE, gl.UNSIGNED_SHORT, 0)
-        this.beforFlush()
+        this._beforFlush()
     }
-    beforFlush() {
-        this.needBind.clear()
-        this.usedTextures = []
-        this.usedVertexData = 0
+    _beforFlush() {
+        this._needBind.clear()
+        this._usedTextures = []
+        this._usedVertexData = 0
         this.count = 0
     }
-    initIndexBuffer() {
-        const gl = this.gl
-        const indexData = this.indexData
+    _initIndexBuffer() {
+        const gl = this._gl
+        const indexData = this._indexData
         let vertexIndex = 0
         for (let arrayIndex = 0; arrayIndex < INDEX_PER_TILE * this.MAX_BATCH; arrayIndex += INDEX_PER_TILE) {
             indexData[arrayIndex + 0] = vertexIndex + 0
@@ -155,17 +155,17 @@ class TilemapRender {
             vertexIndex += VERTEX_PER_TILE
         }
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBufferObject)
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject)
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexData, gl.STATIC_DRAW)
     }
 
-    initVertexAttribute() {
-        const gl = this.gl
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBufferObject)
-        const aPosition = gl.getAttribLocation(this.program, "aPosition")
-        const aRegion = gl.getAttribLocation(this.program, "aRegion")
-        const aTextureId = gl.getAttribLocation(this.program, "aTextureId")
-        const aColor = gl.getAttribLocation(this.program, "aColor")
+    _initVertexAttribute() {
+        const gl = this._gl
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject)
+        const aPosition = gl.getAttribLocation(this._program, "aPosition")
+        const aRegion = gl.getAttribLocation(this._program, "aRegion")
+        const aTextureId = gl.getAttribLocation(this._program, "aTextureId")
+        const aColor = gl.getAttribLocation(this._program, "aColor")
 
         const stride = BYTES_PER_VERTEX
 
@@ -182,14 +182,10 @@ class TilemapRender {
         gl.enableVertexAttribArray(aColor);
     }
     getTexture(skin, scale){
-        const gl = this.gl
+        const gl = this._gl
         // 不多创建一个drawable，节省内存
-        const drawableAttribute = {
-            enabledEffects:false,
-            _direction:90
-        }
         const texture = skin.getTexture(scale)
-        this.twgl.setTextureParameters(
+        this._twgl.setTextureParameters(
             gl, texture, {
                 minMag: skin.useNearest(scale, drawableAttribute) ? gl.NEAREST : gl.LINEAR
             }
