@@ -32,6 +32,7 @@ class HelloWorld {
         if (!this.runtime) {
             throw Error("你的scratch运行不了啊，我的兄嘚！")
         }
+        this.renderer = this.runtime.renderer
         this.tilemap = new Tilemap(this.runtime)
 
         // 所有tilemap共用一个tilemapRender

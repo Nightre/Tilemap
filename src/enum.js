@@ -7,3 +7,8 @@ export const MAP_MODE = {
     ORTHOGONAL: "orthogonal",
     EQUIDISTANCE: "equidistance"
 }
+
+export const ROUND_TYEP = {
+    FLOOR: 0,
+    CEIL: 1,
+}

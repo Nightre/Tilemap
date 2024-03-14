@@ -8,15 +8,15 @@ const BYTES_PER_VERTEX = (4 * 2) + (4 * 2) + (4) + (4)
 const FLOAT32_PER_TILE = VERTEX_PER_TILE * BYTES_PER_VERTEX / Float32Array.BYTES_PER_ELEMENT
 
 const drawableAttribute = {
-    enabledEffects:false,
-    _direction:90
+    enabledEffects: false,
+    _direction: 90
 }
 
 class TilemapRender {
     constructor(runtime) {
         this._render = runtime.renderer
 
-        this._twgl = this._render.exports.twgl
+        this.twgl = this._render.exports.twgl
         /**@type {WebGLRenderingContext} */
         this._gl = this._render.gl
 
@@ -29,13 +29,13 @@ class TilemapRender {
 
         const gl = this._gl
 
-        this._program = createProgramInfo(gl, this._twgl, this.MAX_TEXTURE_UNITS)
+        this._program = createProgramInfo(gl, this.twgl, this.MAX_TEXTURE_UNITS)
 
         this._vertexData = new ArrayBuffer(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH)
-        console.log(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH / 1024 / 1024,'MB')
+        console.log(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH / 1024 / 1024, 'MB')
         this._indexData = new Uint16Array(INDEX_PER_TILE * this.MAX_BATCH)
 
-        this._projectionModel = this._twgl.m4.identity()
+        this._projectionModel = this.twgl.m4.identity()
 
         this._typedVertexFloat = new Float32Array(this._vertexData)
         this._typedVertexUint = new Uint32Array(this._vertexData)
@@ -49,15 +49,23 @@ class TilemapRender {
         this._usedTextures = []
         this._needBind = new Set()
     }
-    startRegion(modelMatrix) {
+    startRegion() {
         this._beforFlush()
         this._initVertexAttribute()
         const gl = this._gl
         const projection = this._render._projection
-        const projectionModel = modelMatrix ? this._twgl.m4.multiply(modelMatrix, projection) : projection
+        // const modelMatrix = this._twgl.m4.identity()
+        // modelMatrix[4] = drawable._scale[0] / 100
+        // modelMatrix[5] = drawable._scale[1] / 100
         gl.useProgram(this._program)
+        gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projection)
         gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
-        gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projectionModel)
+    }
+    setModel(modelMatrix) {
+        const gl = this._gl
+        const projection = this._render._projection
+        this.twgl.m4.multiply(projection, modelMatrix, modelMatrix)
+        gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, modelMatrix)
     }
     exitRegion() {
         // TODO
@@ -109,15 +117,15 @@ class TilemapRender {
          * 3-----2
          */
         const posX = offsetX + width
-        const posY = offsetY + height
+        const posY = offsetY - height // scratch的投影矩阵Y是反的
 
         const texU = u0 + u1
         const texV = v0 + v1
 
-        this._addVertex(offsetX, offsetY, u0, texV, textureUnit, color) // 0
-        this._addVertex(posX, offsetY, texU, texV, textureUnit, color) // 1
-        this._addVertex(posX, posY, texU, v0, textureUnit, color) // 2
-        this._addVertex(offsetX, posY, u0, v0, textureUnit, color) // 3
+        this._addVertex(offsetX, offsetY, u0, v0, textureUnit, color) // 0
+        this._addVertex(posX, offsetY, texU, v0, textureUnit, color) // 1
+        this._addVertex(posX, posY, texU, texV, textureUnit, color) // 2
+        this._addVertex(offsetX, posY, u0, texV, textureUnit, color) // 3
     }
     flush() {
         const gl = this._gl
@@ -129,7 +137,7 @@ class TilemapRender {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject)
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject)
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._typedVertexFloat.subarray(0, this.count * FLOAT32_PER_TILE))        
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._typedVertexFloat.subarray(0, this.count * FLOAT32_PER_TILE))
         gl.drawElements(gl.TRIANGLES, this.count * INDEX_PER_TILE, gl.UNSIGNED_SHORT, 0)
         this._beforFlush()
     }
@@ -181,14 +189,14 @@ class TilemapRender {
         gl.vertexAttribPointer(aColor, 4, gl.UNSIGNED_BYTE, true, stride, 5 * 4);
         gl.enableVertexAttribArray(aColor);
     }
-    getTexture(skin, scale){
+    getTexture(skin, scale) {
         const gl = this._gl
         // 不多创建一个drawable，节省内存
         const texture = skin.getTexture(scale)
-        this._twgl.setTextureParameters(
+        this.twgl.setTextureParameters(
             gl, texture, {
-                minMag: skin.useNearest(scale, drawableAttribute) ? gl.NEAREST : gl.LINEAR
-            }
+            minMag: skin.useNearest(scale, drawableAttribute) ? gl.NEAREST : gl.LINEAR
+        }
         );
         return texture
     }

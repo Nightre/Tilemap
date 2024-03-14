@@ -30,17 +30,17 @@ class TilemapData {
         this._data = newData
     }
     _posInMap(x, y, size = this._size) {
-        if (x < 0 || x > size.x || y < 0 || y > size.y) {
+        if (x < 0 || x > size.x - 1 || y < 0 || y > size.y - 1) {
             return false
         }
         return true
     }
     getData(pos) {
-        if (!this._posInMap(pos.x, pos.y)) return
+        if (!this._posInMap(pos.x, pos.y)) return false
         return this._data[pos.x + pos.y * this._size.x]
     }
     setData(pos, v) {
-        if (!this._posInMap(pos.x, pos.y)) return
+        if (!this._posInMap(pos.x, pos.y)) return false
         this._autoResize(pos.x, pos.y)
         this._data[pos.x + pos.y * this._size.x] = v
     }

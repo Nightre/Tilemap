@@ -1,4 +1,5 @@
 import Scratch from "Scratch";
+import { ROUND_TYEP } from "./enum";
 
 export const createBuffer = (gl, bufferType, size, usage) => {
     var buffer = gl.createBuffer();
@@ -41,4 +42,14 @@ export const getPosFromScratch = (args) => {
 
 export const floorNum = (v) => {
     return Math.floor(Scratch.Cast.toNumber(v))
+}
+
+export const round = (num, type) => {
+    const f = num > 0 ? 1 : -1
+    switch (type) {
+        case ROUND_TYEP.CEIL:
+            return Math.ceil(Math.abs(num)) * f
+        case ROUND_TYEP.FLOOR:
+            return Math.floor(Math.abs(num)) * f
+    }
 }
