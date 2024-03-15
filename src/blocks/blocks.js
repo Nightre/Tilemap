@@ -177,7 +177,7 @@ export default (Scratch) => {
                     },
                     DATA: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: JSON.stringify({ "texture": "造型1", "clip":{"x": 0, "y": 0, "width": 50, "height": 50}, "scale": { x: 0, y: 0 }, "offset": { x: 0, y: 0 },"rotate":90,"color":"FFFFFF" })
+                        defaultValue: JSON.stringify({"texture":"造型1","clip":{"x":0,"y":0,"width":50,"height":50},"scale":{"x":1,"y":1},"offset":{"x":0,"y":0},"anchor":{"x":25,"y":-25},"rotate":90,"color":"FFFFFF"})
                     }
                 }
             },

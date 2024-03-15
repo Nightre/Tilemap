@@ -8,7 +8,7 @@ import { Override } from "./override";
 import { SHOW_MODE } from "./enum";
 import TileSet, { TileData } from "./tilemap-tileset";
 
-
+// TODO:地图销毁bog
 /**
  * 
  * 
@@ -33,7 +33,9 @@ class HelloWorld {
             throw Error("你的scratch运行不了啊，我的兄嘚！")
         }
         this.renderer = this.runtime.renderer
-        this.tilemap = new Tilemap(this.runtime)
+        this.m4 = this.renderer.exports.twgl.m4
+
+        //this.tilemap = new Tilemap(this.runtime)
 
         // 所有tilemap共用一个tilemapRender
         this.render = new TilemapRender(this.runtime)
@@ -42,6 +44,9 @@ class HelloWorld {
         this.tilesets = new Map
 
         window.tilemap = this
+        // const gl = this.renderer.gl
+        // gl.enable(gl.SCISSOR_TEST);
+        // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
     }
     getInfo() {
         return blocks(Scratch)
@@ -169,10 +174,21 @@ class HelloWorld {
         const tileset = this.tilesets.get(tilesetName)
         if (!tileset) return
         const data = JSON.parse(args.DATA)
+        const matrix = this.m4.identity();
+        this.m4.translate(matrix, [data.offset?.x || 0, data.offset?.y || 0, 0], matrix);
+        
+        this.m4.translate(matrix, [data.anchor?.x || 0, data.anchor?.y || 0, 0], matrix);
+
+        this.m4.scale(matrix, [data.scale?.x || 0, data.scale?.y || 0, 1], matrix);
+        this.m4.rotateZ(matrix, (90 - (data.rotate || 90)) * Math.PI / 180, matrix)
+
+        this.m4.translate(matrix, [-data.anchor?.x || 0, -data.anchor?.y || 0, 0], matrix);
+
         tileset.addTileData(Cast.toString(args.TILE_NAME), new TileData(
             getSkinByName(utils, data.texture),
             data.clip,
             data.color,
+            matrix
         ))
     }
     removeTileSet(args) {

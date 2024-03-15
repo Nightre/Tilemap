@@ -1,5 +1,5 @@
 import { createProgramInfo } from "./shader"
-import { createBuffer } from "./utils"
+import { createBuffer, transformPoint } from "./utils"
 
 const VERTEX_PER_TILE = 4
 const INDEX_PER_TILE = 6
@@ -32,7 +32,6 @@ class TilemapRender {
         this._program = createProgramInfo(gl, this.twgl, this.MAX_TEXTURE_UNITS)
 
         this._vertexData = new ArrayBuffer(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH)
-        console.log(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH / 1024 / 1024, 'MB')
         this._indexData = new Uint16Array(INDEX_PER_TILE * this.MAX_BATCH)
 
         this._projectionModel = this.twgl.m4.identity()
@@ -54,9 +53,7 @@ class TilemapRender {
         this._initVertexAttribute()
         const gl = this._gl
         const projection = this._render._projection
-        // const modelMatrix = this._twgl.m4.identity()
-        // modelMatrix[4] = drawable._scale[0] / 100
-        // modelMatrix[5] = drawable._scale[1] / 100
+
         gl.useProgram(this._program)
         gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projection)
         gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
@@ -86,8 +83,11 @@ class TilemapRender {
         this._typedVertexUint[this._usedVertexData++] = n
     }
     _addVertex(x, y, u, v, textureUnit, color) {
-        this._pushToVertexFloat(x)
-        this._pushToVertexFloat(y)
+
+        const pos = transformPoint(this.currentTileData.matrix, [x, y, 0])
+
+        this._pushToVertexFloat(this.currentOffset[0] + pos[0])
+        this._pushToVertexFloat(this.currentOffset[1] + pos[1])
         this._pushToVertexFloat(u)
         this._pushToVertexFloat(v)
         this._pushToVertexFloat(textureUnit)
@@ -99,7 +99,8 @@ class TilemapRender {
         u0, v0,
         u1, v1,
         offsetX, offsetY,
-        color
+        color,
+        tileData
     ) {
         if (this.count >= this.MAX_BATCH) {
             this.flush()
@@ -108,6 +109,8 @@ class TilemapRender {
             this.flush()
         }
         this.count++
+        this.currentTileData = tileData
+        this.currentOffset = [offsetX, offsetY]
         const textureUnit = this._useTexture(texture)
 
         /**
@@ -116,16 +119,13 @@ class TilemapRender {
          * |   \ |
          * 3-----2
          */
-        const posX = offsetX + width
-        const posY = offsetY - height // scratch的投影矩阵Y是反的
-
         const texU = u0 + u1
         const texV = v0 + v1
 
-        this._addVertex(offsetX, offsetY, u0, v0, textureUnit, color) // 0
-        this._addVertex(posX, offsetY, texU, v0, textureUnit, color) // 1
-        this._addVertex(posX, posY, texU, texV, textureUnit, color) // 2
-        this._addVertex(offsetX, posY, u0, texV, textureUnit, color) // 3
+        this._addVertex(0, 0, u0, v0, textureUnit, color) // 0
+        this._addVertex(width, 0, texU, v0, textureUnit, color) // 1
+        this._addVertex(width, -height, texU, texV, textureUnit, color) // 2
+        this._addVertex(0, -height, u0, texV, textureUnit, color) // 3
     }
     flush() {
         const gl = this._gl

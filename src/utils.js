@@ -23,10 +23,10 @@ export const getSkinByName = (u, name) => {
 }
 // scratch 用的 4*4 矩阵（twgl.m4），但只加工二维的基向量和平移，减小开销
 export const matrixProcessingVector = (m, x, y) => {
-    return {
-        x: x * m[0] + y * m[4] + m[12],
-        y: x * m[1] + y * m[5] + m[13],
-    }
+    return [
+        x * m[0] + y * m[1] + m[12],
+        x * m[1] + y * m[5] + m[13]
+    ]
 }
 
 export const range = (v, min, max) => {
@@ -52,4 +52,16 @@ export const round = (num, type) => {
         case ROUND_TYEP.FLOOR:
             return Math.floor(Math.abs(num)) * f
     }
+}
+
+/**
+ * 不用twgl.m4.transformPoint开销过大，只需要加工X,Y基向量+平移即可！
+ */
+export const transformPoint = (m, v) => {
+    const dst = []
+    var v0 = v[0];
+    var v1 = v[1];
+    dst[0] = (v0 * m[0] + v1 * m[4] + m[12])
+    dst[1] = (v0 * m[1] + v1 * m[5] + m[13])
+    return dst;
 }

@@ -17,7 +17,8 @@ class Tilemap {
 
         this.tileStart = ZERO_VEC2 // 瓦片开始绘制的索引
         this.tileSize = ZERO_VEC2 // 瓦片大小
-
+        this.retlTileSize = ZERO_VEC2
+        this.scale = ZERO_VEC2
         // 绘制几个瓦片
         this.drawTileNum = { x: 10, y: 10 }
 
@@ -35,14 +36,23 @@ class Tilemap {
     calculation() {
         const m4 = this.render.twgl.m4
         const drawable = this.drawable
-        const nativeSize = this.app.renderer._nativeSize
-        const scale = {
+        switch (this.mode) {
+            case MAP_MODE.EQUIDISTANCE:
+                this.tileSize.y = this.retlTileSize.y * 0.5
+                break;
+            default:
+                this.tileSize.y = this.retlTileSize.y
+                break;
+        }
+        this.tileSize.x = this.retlTileSize.x
+        this.nativeSize = this.app.renderer._nativeSize
+        this.scale = {
             x: drawable._scale[0] / 100,
             y: drawable._scale[1] / 100
         }
         this.camera = {
-            x: drawable._position[0] + nativeSize[0] / 2,
-            y: drawable._position[1] - nativeSize[1] / 2,
+            x: drawable._position[0] + this.nativeSize[0] / 2,
+            y: drawable._position[1] - this.nativeSize[1] / 2,
         }
         this.offset = {
             x: this.camera.x % this.tileSize.x,
@@ -53,15 +63,16 @@ class Tilemap {
             y: round(this.camera.y / this.tileSize.y, ROUND_TYEP.FLOOR)
         }
         this.drawTileNum = {
-            x: Math.ceil(nativeSize[0] / (this.tileSize.x * scale.x)) + 1,
-            y: Math.ceil(nativeSize[1] / (this.tileSize.y * scale.y)) + 1,
+            x: Math.ceil(this.nativeSize[0] / (this.tileSize.x * this.scale.x)) + 1,
+            y: Math.ceil(this.nativeSize[1] / (this.tileSize.y * this.scale.y)) + 1,
         }
+        debugger
         // 不能用drawable的矩阵，因为有旋转中心，skin缩放
         const model = m4.identity()
-        m4.translate(model, [-nativeSize[0] / 2, nativeSize[1] / 2, 0], model)
-        m4.scale(model, [scale.x, scale.y, 1], model)
-        m4.translate(model, [this.offset.x, this.offset.y, 0], model)
+        m4.translate(model, [-this.nativeSize[0] / 2, this.nativeSize[1] / 2, 0], model)
 
+        m4.scale(model, [this.scale.x, this.scale.y, 1], model)
+        m4.translate(model, [this.offset.x, this.offset.y, 0], model)
         this.render.setModel(model)
     }
     draw() {
@@ -71,17 +82,21 @@ class Tilemap {
         const stepOffset = { x: 0, y: 0 }
         for (let y = 0; y < this.drawTileNum.y; y++) {
             stepOffset.x = 0
+            let equOffset = 0
+            if (this.mode == MAP_MODE.EQUIDISTANCE && y % 2 == 0) {
+                equOffset += this.tileSize.x / 2
+            }
             for (let x = 0; x < this.drawTileNum.x; x++) {
                 this.drawTile(
-                    stepOffset.x, stepOffset.y, this.tileStart.x + x, this.tileStart.y + y
+                    equOffset + stepOffset.x, stepOffset.y, this.tileStart.x + x, this.tileStart.y + y
                 )
                 stepOffset.x += this.tileSize.x
             }
-            stepOffset.y -= this.tileSize.y // scratch projection 是反的
+            stepOffset.y -= this.tileSize.y
         }
     }
     update(opt) {
-        this.tileSize = {
+        this.retlTileSize = {
             x: range(opt.tileSize.x, 0, 1024),
             y: range(opt.tileSize.y, 0, 1024),
         }
@@ -97,17 +112,23 @@ class Tilemap {
      * @param {Number} y 数据索引
      */
     drawTile(offsetX, offsetY, x, y) {
+
         const id = this.mapData.getData({ x, y })
         if (!id) return
         /** @type {TileData} */
         const tileData = this.tileset.mapping.get(id)
         const clip = tileData.clip
+
         this.render.addTile(
-            this.render.getTexture(tileData.skin, [50, 50]), // TODO: sacle
-            clip.width, clip.height,
-            0, 0, 1, 1, offsetX, offsetY, 0xFFFF00FF
+            tileData.getTexture([
+                this.scale.x * clip.width,
+                this.scale.y * clip.height
+            ]),
+            tileData.width, tileData.height,
+            clip.x, clip.y, clip.x + clip.width, clip.y + clip.height, offsetX, offsetY, 0xFFFF00FF,
+            tileData
         )
-        this.render.flush()
+
     }
     destory() {
         const tileData = this.drawable.tileData

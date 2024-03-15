@@ -4,36 +4,31 @@ const MAX_TILE_SET = 1024
 
 export class TileData {
     constructor(skin, clip, color, matrix) {
+        const size = skin.size
         this.clip = {
-            x: clip.x || 0,
-            y: clip.y || 0,
-            width: clip.width || 0,
-            height: clip.height || 0
+            x: (clip.x || 0) / size[0],
+            y: (clip.y || 0) / size[1],
+            width: (clip.width || 0) / size[0],
+            height: (clip.height || 0) / size[1]
         }
         this.tilemapRender = null
         this.tileName = null
-
-        this.color = color || 0xFFFFFFFF // Unit32 color
+        this.width = clip.width
+        this.height = clip.height
+        this.color = 0xFFFFFFFF // Unit32 color TODO:a
         this.skin = skin
         this.matrix = matrix
-
     }
     enable(tileName, tilemapRender) {
         this.tileName = tileName
         this.tilemapRender = tilemapRender
     }
-    getTexture(scale) {
-        if (!this.skin) {
+    getTexture(size) {
+        const skin = this.skin
+        if (!skin) {
             return
         }
-        return this.tilemapRender.getTexture(this.skin, scale)
-    }
-    processingVector(x, y) {
-        if (this.matrix) {
-            return matrixProcessingVector(this.matrix, x, y)
-        } else {
-            return { x, y }
-        }
+        return this.tilemapRender.getTexture(this.skin, size)
     }
 }
 
@@ -58,7 +53,7 @@ export class TileSet {
         tileData.enable(tileName, this._tilemapRender)
         this.mapping.set(this.count, tileData)
         this.nameMapping.set(tileName, this.count)
-        this._tileDatas.set(tileName,tileData)
+        this._tileDatas.set(tileName, tileData)
     }
     removeTileData(tileName) {
         this.mapping.delete(this.nameMapping.get(tileName))
@@ -69,9 +64,9 @@ export class TileSet {
         return this._tileDatas.get(tileName)
     }
 
-    toJson(){
+    toJson() {
         const json = []
-        this._tileDatas.forEach((_,k)=>{
+        this._tileDatas.forEach((_, k) => {
             json.push(k)
         })
         return json
