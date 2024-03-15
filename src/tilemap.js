@@ -78,7 +78,7 @@ class Tilemap {
     calculationMembers() {
         const sort = {}
         this.members.forEach((drawable) => {
-            if (this.render._drawList.inclueds(drawable._id)) {
+            if (this.app.renderer._drawList.includes(drawable._id)) {
                 const layer = drawable.tilemapData.sort
                 if (!sort[layer]) sort[layer] = []
                 sort[layer].push(drawable)
