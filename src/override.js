@@ -49,7 +49,6 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
                 enterRegion = true
             }
             drawable.tilemapData.drawTilemaps(enterRegion, opts)
-            continue
         }
 
         const uniforms = {};

@@ -224,6 +224,9 @@ class TilemapRender {
         );
         return texture
     }
+    makeDirty(){
+        this._render.dirty = true
+    }
 }
 
 export default TilemapRender

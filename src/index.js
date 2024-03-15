@@ -8,7 +8,7 @@ import { Override } from "./override";
 import { SHOW_MODE } from "./enum";
 import TileSet, { TileData } from "./tilemap-tileset";
 
-// TODO:地图销毁bog,无法加入 ,瓦片集合创建更新, 加入图层后draawable可能会被销毁
+// TODO:地图销毁bog, 加入图层后draawable可能会被销毁
 /**
  * 
  * 
@@ -81,38 +81,18 @@ class TilemapScratch {
     }
 
     //////////////////////////////////////////////////////////////////////////
-    hello(args, utils) {
-        const skin = getSkinByName(utils, "造型1")
-        this.render.startRegion()
-
-        this.render.addTile(
-            // TODO:纹理大小，纹理加载
-            this.render.getTexture(skin, [50, 50]),
-            100, 50,
-            0, 0, 1, 1, 0, 0, 0xFFFF00FF
-        )
-        this.render.addTile(
-            // TODO:纹理大小，纹理加载
-            this.render.getTexture(skin, [50, 50]),
-            100, 50,
-            0, 0, 1, 1, 50, 0, 0xFFFF00FF
-        )
-        this.render.flush()
-
-
-        return 1;
-    }
 
     setShowMode(args) {
         this.getTilemap(args, (tilemap) => {
             tilemap.show = (args.MODE == SHOW_MODE.SHOW)
         })
+        this.render.makeDirty()
     }
     updateTilemap(args, utils) {
         const { drawable } = getCallerInfo(utils)
         const tilemapName = Cast.toString(args.NAME)
         if (!this.tilemaps.has(tilemapName)) {
-            const newTilemap = new Tilemap(this, drawable)
+            const newTilemap = new Tilemap(this, drawable, tilemapName)
 
             if (!drawable.tilemapData) {
                 drawable.tilemapData = {
@@ -133,12 +113,15 @@ class TilemapScratch {
             mode: args.TILEMAP_MODE,
             tilesetName: Cast.toString(args.TILE_SET)
         })
+        this.render.makeDirty()
     }
     destoryTilemap(args) {
         this.getTilemap(args, (tilemap) => {
-            delete this.tilemaps.get(tilemap.name)
+            
+            this.tilemaps.delete(tilemap.name)
             tilemap.destory()
         })
+        this.render.makeDirty()
     }
     //////////////////////////////////////////////////////////////////////////
     resizeTileData(args) {
@@ -148,6 +131,7 @@ class TilemapScratch {
                 floorNum(args.SIZE_Y)
             )
         })
+        this.render.makeDirty()
     }
     setTileData(args) {
         this.getTilemap(args, (tilemap) => {
@@ -156,13 +140,15 @@ class TilemapScratch {
                 Cast.toString(args.VALUE),
             )
         })
+        this.render.makeDirty()
+
     }
     getTileName(args) {
         return this.getTilemap(args, (tilemap) => {
             const data = tilemap.getTileData(getPosFromScratch(args))
             if (!data) return ''
             return data.tileName
-        }, '')
+        }, '0')
     }
     //////////////////////////////////////////////////////////////////////////
     getAllTileSet(args) {
@@ -179,13 +165,13 @@ class TilemapScratch {
         if (!tileset) return
         const data = JSON.parse(args.DATA)
         const matrix = this.m4.identity();
-        this.m4.translate(matrix, [data.offset?.x || 0, data.offset?.y || 0, 0], matrix);
-
-        this.m4.translate(matrix, [data.anchor?.x || 0, data.anchor?.y || 0, 0], matrix);
-
+        this.m4.translate(matrix, [
+            data.offset?.x || 0 + data.anchor?.x || 0,
+            data.offset?.y || 0 + data.anchor?.y || 0,
+            0],
+         matrix);
         this.m4.scale(matrix, [data.scale?.x || 0, data.scale?.y || 0, 1], matrix);
         this.m4.rotateZ(matrix, (90 - (data.rotate || 90)) * Math.PI / 180, matrix)
-
         this.m4.translate(matrix, [-data.anchor?.x || 0, -data.anchor?.y || 0, 0], matrix);
 
         tileset.addTileData(Cast.toString(args.TILE_NAME), new TileData(
@@ -194,17 +180,20 @@ class TilemapScratch {
             data.color,
             matrix
         ))
+        this.render.makeDirty()
     }
     removeTileSet(args) {
         const tileset = this.tilesets.get(Cast.toString(args.NAME))
         if (!tileset) return
         tileset.removeTileData(Cast.toString(args.TILE_NAME))
+        this.render.makeDirty()
     }
     joinTileMapLayer(args, utils) {
-
+        const { drawable } = getCallerInfo(utils)
+        if (drawable.tilemapData && drawable.tilemapData.tilemaps && Object.keys(drawable.tilemapData.tilemaps).length > 0) {
+            return // 有tilemap无法加入其他tilemap
+        }
         this.getTilemap(args, (tilemap) => {
-
-            const { drawable } = getCallerInfo(utils)
             if (!drawable.tilemapData) {
                 drawable.tilemapData = {
                     skipDraw: true,
@@ -214,7 +203,7 @@ class TilemapScratch {
             drawable.tilemapData.parentTilemap = tilemap
             tilemap.members.add(drawable)
         })
-
+        this.render.makeDirty()
     }
     setLayerInTileMap(args, utils) {
         const { drawable } = getCallerInfo(utils)
@@ -222,6 +211,7 @@ class TilemapScratch {
         if (tileData) {
             tileData.sort = floorNum(args.LAYER) - 1 // - 1 scratch一般索引第一个是1，所以减一
         }
+        this.render.makeDirty()
     }
     quitTileMap(_, utils) {
         const { drawable } = getCallerInfo(utils)
@@ -230,6 +220,7 @@ class TilemapScratch {
             tileData.parentTilemap.members.delete(drawable)
             tileData.parentTilemap = null
         }
+        this.render.makeDirty()
     }
 }
 

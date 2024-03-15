@@ -14,11 +14,6 @@ export default (Scratch) => {
         color1: "#604020",
         blocks: [
             {
-                opcode: 'hello',
-                blockType: Scratch.BlockType.REPORTER,
-                text: 'Hello!'
-            },
-            {
                 blockType: Scratch.BlockType.LABEL,
                 text: "基础操作"
             },

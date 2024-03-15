@@ -7,14 +7,14 @@ import { range, round } from "./utils"
 const ZERO_VEC2 = { x: 0, y: 0 }
 
 class Tilemap {
-    constructor(app, drawable) {
+    constructor(app, drawable, tilemapName) {
         this.app = app
         /** @type {TilemapRender} */
         this.render = app.render
 
         this.camera = ZERO_VEC2 // 摄像机
         this.offset = ZERO_VEC2 // 坐标偏移
-
+        this.name = tilemapName
         this.tileStart = ZERO_VEC2 // 瓦片开始绘制的索引
         this.tileSize = ZERO_VEC2 // 瓦片大小
         this.retlTileSize = ZERO_VEC2
@@ -131,6 +131,7 @@ class Tilemap {
         if (!id) return
         /** @type {TileData} */
         const tileData = this.tileset.mapping.get(id)
+        if (!tileData) return // 呗删掉的tileset
         const clip = tileData.clip
 
         this.render.addTile(
@@ -145,7 +146,7 @@ class Tilemap {
 
     }
     destory() {
-        const tileData = this.drawable.tileData
+        const tileData = this.drawable.tilemapData
         if (tileData) {
             delete tileData.tilemaps[this.name]
         }

@@ -46,15 +46,30 @@ export class TileSet {
         if (this._tileDatas.size >= MAX_TILE_SET) {
             return
         }
-        if (!this.nameMapping.has(tileName)) {
-            this.count += 1 // 使用 Unit16 存储，无法有负数，用0代表空，所以在开始之前count++
-        }
+
         tileData.enable(tileName, this._tilemapRender)
-        this.mapping.set(this.count, tileData)
-        this.nameMapping.set(tileName, this.count)
+        let id = 0
+        if (this.nameMapping.has(tileName)) {   
+            id = this.nameMapping.get(tileData)
+        } else {
+            this.count += 1 // 使用 Unit16 存储，无法有负数，用0代表空，所以在开始之前count++
+            id = this.count
+        }
+        this.mapping.set(id, tileData)
+        this.nameMapping.set(tileName, id)
         this._tileDatas.set(tileName, tileData)
+
+        // if (!this.nameMapping.has(tileName)) {
+        //     this.count += 1 // 使用 Unit16 存储，无法有负数，用0代表空，所以在开始之前count++
+        // }
+        // tileData.enable(tileName, this._tilemapRender)
+        // this.mapping.set(this.count, tileData)
+        // this.nameMapping.set(tileName, this.count)
+        // this._tileDatas.set(tileName, tileData)
+
     }
     removeTileData(tileName) {
+        debugger
         this.mapping.delete(this.nameMapping.get(tileName))
         this.nameMapping.delete(tileName)
         this._tileDatas.delete(tileName)
