@@ -8,15 +8,18 @@ import { Override } from "./override";
 import { SHOW_MODE } from "./enum";
 import TileSet, { TileData } from "./tilemap-tileset";
 
-// TODO:地图销毁bog
+// TODO:地图销毁bog,无法加入 ,瓦片集合创建更新, 加入图层后draawable可能会被销毁
 /**
  * 
  * 
  *                      无敌超级唔唔唔唔警告：
  *                            没有注释
  * 
- *
- * Tilemap-Logic
+ * TilemapScratch
+ *    |
+ *    | 与scratch
+ *    |
+ * Tilemap1，Tilemap2，Tilemap3 ...
  * 逻辑，管理   
  *      Tilemap-DATA
  *      地图数据
@@ -26,7 +29,7 @@ import TileSet, { TileData } from "./tilemap-tileset";
  *      瓦片集合 
  */
 const Cast = Scratch.Cast
-class HelloWorld {
+class TilemapScratch {
     constructor(runtime) {
         this.runtime = runtime ?? Scratch.vm.runtime
         if (!this.runtime) {
@@ -56,14 +59,15 @@ class HelloWorld {
 
     getTilemap(args, callback, defaultReturn) {
         const tilemapName = Cast.toString(args.NAME)
+
         if (this.tilemaps.has(tilemapName)) {
             return callback(this.tilemaps.get(tilemapName))
         }
         return defaultReturn
     }
-    drawTilemaps(drawable, enterRegion) {
+    drawTilemaps(drawable, enterRegion, opts) {
         if (enterRegion) {
-            this.render.startRegion()
+            this.render.startRegion(opts)
         }
         if (drawable.tilemapData) {
             const tilemaps = Object.values(drawable.tilemapData.tilemaps)
@@ -112,7 +116,7 @@ class HelloWorld {
 
             if (!drawable.tilemapData) {
                 drawable.tilemapData = {
-                    drawTilemaps: (enterRegion) => this.drawTilemaps(drawable, enterRegion),
+                    drawTilemaps: (enterRegion, opts) => this.drawTilemaps(drawable, enterRegion, opts),
                     tilemaps: {}
                 }
             }
@@ -176,7 +180,7 @@ class HelloWorld {
         const data = JSON.parse(args.DATA)
         const matrix = this.m4.identity();
         this.m4.translate(matrix, [data.offset?.x || 0, data.offset?.y || 0, 0], matrix);
-        
+
         this.m4.translate(matrix, [data.anchor?.x || 0, data.anchor?.y || 0, 0], matrix);
 
         this.m4.scale(matrix, [data.scale?.x || 0, data.scale?.y || 0, 1], matrix);
@@ -197,33 +201,36 @@ class HelloWorld {
         tileset.removeTileData(Cast.toString(args.TILE_NAME))
     }
     joinTileMapLayer(args, utils) {
+
         this.getTilemap(args, (tilemap) => {
+
             const { drawable } = getCallerInfo(utils)
             if (!drawable.tilemapData) {
                 drawable.tilemapData = {
-                    skipDraw: false,
+                    skipDraw: true,
                     parentTilemap: null
                 }
             }
             drawable.tilemapData.parentTilemap = tilemap
             tilemap.members.add(drawable)
         })
+
     }
     setLayerInTileMap(args, utils) {
         const { drawable } = getCallerInfo(utils)
         const tileData = drawable.tilemapData
         if (tileData) {
-            tileData.sort = floorNum(args.LAYER)
+            tileData.sort = floorNum(args.LAYER) - 1 // - 1 scratch一般索引第一个是1，所以减一
         }
     }
     quitTileMap(_, utils) {
         const { drawable } = getCallerInfo(utils)
         const tileData = drawable.tilemapData
         if (tileData && tileData.parentTilemap) {
-            tileData.parentTilemap.members.remove(drawable)
+            tileData.parentTilemap.members.delete(drawable)
             tileData.parentTilemap = null
         }
     }
 }
 
-Scratch.extensions.register(new HelloWorld());
+Scratch.extensions.register(new TilemapScratch());

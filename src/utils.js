@@ -21,13 +21,6 @@ export const getSkinByName = (u, name) => {
     const skin = u.runtime.renderer._allSkins[skinId]
     return skin
 }
-// scratch 用的 4*4 矩阵（twgl.m4），但只加工二维的基向量和平移，减小开销
-export const matrixProcessingVector = (m, x, y) => {
-    return [
-        x * m[0] + y * m[1] + m[12],
-        x * m[1] + y * m[5] + m[13]
-    ]
-}
 
 export const range = (v, min, max) => {
     return Math.max(min, Math.min(v, max))

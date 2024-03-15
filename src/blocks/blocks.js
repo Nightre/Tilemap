@@ -207,7 +207,7 @@ export default (Scratch) => {
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地图",
+                        defaultValue: "地面",
                     },
                 }
             },

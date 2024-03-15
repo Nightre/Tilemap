@@ -1,5 +1,5 @@
 
-function _drawThese (drawables, drawMode, projection, opts = {}){
+function _drawThese(drawables, drawMode, projection, opts = {}) {
     const gl = this._gl;
     const twgl = this.exports.twgl
     let currentShader = null;
@@ -48,7 +48,7 @@ function _drawThese (drawables, drawMode, projection, opts = {}){
                 this._regionId = "tilemap";
                 enterRegion = true
             }
-            drawable.tilemapData.drawTilemaps(enterRegion)
+            drawable.tilemapData.drawTilemaps(enterRegion, opts)
             continue
         }
 

@@ -47,20 +47,26 @@ class TilemapRender {
         this._initIndexBuffer()
         this._usedTextures = []
         this._needBind = new Set()
+
+        this.modelMatrix = this.twgl.m4.identity()
     }
-    startRegion() {
-        this._beforFlush()
+    startRegion(opts) {
+        this.opts = opts
+        
         this._initVertexAttribute()
         const gl = this._gl
-        const projection = this._render._projection
+        const projection = this.twgl.m4.multiply(this._render._projection, this.modelMatrix)
 
         gl.useProgram(this._program)
         gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projection)
         gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
+
+        this._afterFlush()
     }
     setModel(modelMatrix) {
         const gl = this._gl
         const projection = this._render._projection
+        this.modelMatrix = this.twgl.m4.copy(modelMatrix)
         this.twgl.m4.multiply(projection, modelMatrix, modelMatrix)
         gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, modelMatrix)
     }
@@ -127,6 +133,24 @@ class TilemapRender {
         this._addVertex(width, -height, texU, texV, textureUnit, color) // 2
         this._addVertex(0, -height, u0, texV, textureUnit, color) // 3
     }
+    drawMembers(y, toRenderMembers) {
+        if (toRenderMembers[y]) {
+            const drawableIDs = []
+            if (this.count > 0) {
+                this.flush()
+            }
+            for (const members of toRenderMembers[y]) {
+                members.tilemapData.skipDraw = false
+                drawableIDs.push(members._id)
+            }
+            this._render._drawThese(drawableIDs, 'default', this._render._projection, this.opts)
+            for (const members of toRenderMembers[y]) {
+                members.tilemapData.skipDraw = true
+            }
+            this.startRegion(this.opts)
+            
+        }
+    }
     flush() {
         const gl = this._gl
 
@@ -139,9 +163,9 @@ class TilemapRender {
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject)
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._typedVertexFloat.subarray(0, this.count * FLOAT32_PER_TILE))
         gl.drawElements(gl.TRIANGLES, this.count * INDEX_PER_TILE, gl.UNSIGNED_SHORT, 0)
-        this._beforFlush()
+        this._afterFlush()
     }
-    _beforFlush() {
+    _afterFlush() {
         this._needBind.clear()
         this._usedTextures = []
         this._usedVertexData = 0
