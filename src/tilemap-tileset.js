@@ -7,8 +7,8 @@ export class TileData {
         this.clip = {
             x: (clip.x || 0) / size[0],
             y: (clip.y || 0) / size[1],
-            width: (clip.width || 0) / size[0],
-            height: (clip.height || 0) / size[1]
+            width: (clip.width || 1) / size[0],
+            height: (clip.height || 1) / size[1]
         }
         this.tilemapRender = null
         this.tileName = null
@@ -46,18 +46,19 @@ export class TileSet {
         if (this._tileDatas.size >= MAX_TILE_SET) {
             return
         }
-
         tileData.enable(tileName, this._tilemapRender)
-        let id = 0
-        if (this.nameMapping.has(tileName)) {   
-            id = this.nameMapping.get(tileData)
+
+        if (this.nameMapping.has(tileName)) {
+            const id = this.nameMapping.get(tileName)
+            this.mapping.set(id, tileData)
+            this._tileDatas.set(tileName, tileData)
         } else {
-            this.count += 1 // 使用 Unit16 存储，无法有负数，用0代表空，所以在开始之前count++
-            id = this.count
+            this.count++ // 使用 Unit16 存储，无法有负数，用0代表空，所以在开始之前count++
+            const id = this.count
+            this.mapping.set(id, tileData)
+            this.nameMapping.set(tileName, id)
+            this._tileDatas.set(tileName, tileData)
         }
-        this.mapping.set(id, tileData)
-        this.nameMapping.set(tileName, id)
-        this._tileDatas.set(tileName, tileData)
 
         // if (!this.nameMapping.has(tileName)) {
         //     this.count += 1 // 使用 Unit16 存储，无法有负数，用0代表空，所以在开始之前count++
@@ -69,7 +70,6 @@ export class TileSet {
 
     }
     removeTileData(tileName) {
-        debugger
         this.mapping.delete(this.nameMapping.get(tileName))
         this.nameMapping.delete(tileName)
         this._tileDatas.delete(tileName)

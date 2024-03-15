@@ -40,9 +40,11 @@ class Tilemap {
             case MAP_MODE.EQUIDISTANCE:
                 this.tileSize.y = this.retlTileSize.y * 0.5
                 break;
-            default:
+            case MAP_MODE.ORTHOGONAL:
                 this.tileSize.y = this.retlTileSize.y
                 break;
+            default:
+                throw new Error("你这样我很难帮你办事呀")
         }
         this.tileSize.x = this.retlTileSize.x
         this.nativeSize = this.app.renderer._nativeSize
@@ -51,8 +53,8 @@ class Tilemap {
             y: drawable._scale[1] / 100
         }
         this.camera = {
-            x: drawable._position[0] + this.nativeSize[0] / 2 / this.scale.x,
-            y: drawable._position[1] - this.nativeSize[1] / 2 / this.scale.y,
+            x: (drawable._position[0] + this.nativeSize[0]/ 2)  / this.scale.x,
+            y: (drawable._position[1] - this.nativeSize[1]/ 2)  / this.scale.y,
         }
         // this.nativeSize[1] / 2 是缩放中心
         this.offset = {
@@ -64,10 +66,9 @@ class Tilemap {
             y: round(this.camera.y / this.tileSize.y, ROUND_TYEP.FLOOR)
         }
         this.drawTileNum = {
-            x: Math.ceil(this.nativeSize[0] / (this.tileSize.x * this.scale.x)),
-            y: Math.ceil(this.nativeSize[1] / (this.tileSize.y * this.scale.y))
+            x: Math.ceil(this.nativeSize[0] / (this.tileSize.x * this.scale.x)) + 1,
+            y: Math.ceil(this.nativeSize[1] / (this.tileSize.y * this.scale.y)) + 1
         }
-
         // 不能用drawable的矩阵，因为有旋转中心，skin缩放
         const model = m4.identity()
         m4.translate(model, [-this.nativeSize[0] / 2, this.nativeSize[1] / 2, 0], model)
@@ -82,7 +83,7 @@ class Tilemap {
                 const layer = drawable.tilemapData.sort
                 if (!sort[layer]) sort[layer] = []
                 sort[layer].push(drawable)
-            }else{
+            } else {
                 // 加入tilemap的 drawable 被删除
                 this.members.delete(drawable)
             }
@@ -163,9 +164,13 @@ class Tilemap {
         return this.tileset.mapping.get(data)
     }
     setTileData(pos, tileName) {
+        if (tileName === "0") {
+            this.mapData.setData(pos, 0)
+            return
+        }
         if (!this.tileset) return
         const data = this.tileset.nameMapping.get(tileName)
-        if (!data) return
+        if (data === undefined) return // data 可能为 0
         this.mapData.setData(pos, data)
     }
 }

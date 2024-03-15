@@ -8,7 +8,7 @@ import { Override } from "./override";
 import { SHOW_MODE } from "./enum";
 import TileSet, { TileData } from "./tilemap-tileset";
 
-// TODO:地图销毁bog, 加入图层后draawable可能会被销毁
+// TODO: 位置感觉卡卡的
 /**
  * 
  * 
@@ -31,9 +31,9 @@ import TileSet, { TileData } from "./tilemap-tileset";
 const Cast = Scratch.Cast
 class TilemapScratch {
     constructor(runtime) {
-        this.runtime = runtime ?? Scratch.vm.runtime
+        this.runtime = runtime || Scratch.vm.runtime
         if (!this.runtime) {
-            throw Error("你的scratch运行不了啊，我的兄嘚！")
+            throw Error("你的scratch运行不了啊，老兄！！")
         }
         this.renderer = this.runtime.renderer
         this.m4 = this.renderer.exports.twgl.m4
@@ -151,11 +151,11 @@ class TilemapScratch {
         }, '0')
     }
     //////////////////////////////////////////////////////////////////////////
-    getAllTileSet(args) {
-        const data = this.tilesets.get(Cast.toString(args.NAME))
-        if (!data) return '{}'
-        return JSON.stringify(data.toJson())
-    }
+    // getAllTileSet(args) {
+    //     const data = this.tilesets.get(Cast.toString(args.NAME))
+    //     if (!data) return '{}'
+    //     return JSON.stringify(data.toJson())
+    // }
     createTileSet(args, utils) {
         const tilesetName = Cast.toString(args.NAME)
         if (!this.tilesets.has(tilesetName)) {

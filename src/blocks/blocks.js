@@ -146,17 +146,17 @@ export default (Scratch) => {
                 blockType: Scratch.BlockType.LABEL,
                 text: "地图集合"
             },
-            {
-                opcode: 'getAllTileSet',
-                text: "获取[NAME]瓦片集的JSON数据",
-                blockType: Scratch.BlockType.REPORTER,
-                arguments: {
-                    NAME: {
-                        type: Scratch.ArgumentType.STRING,
-                        defaultValue: "城市",
-                    },
-                }
-            },
+            // {
+            //     opcode: 'getAllTileSet',
+            //     text: "获取[NAME]瓦片集的JSON数据",
+            //     blockType: Scratch.BlockType.REPORTER,
+            //     arguments: {
+            //         NAME: {
+            //             type: Scratch.ArgumentType.STRING,
+            //             defaultValue: "城市",
+            //         },
+            //     }
+            // },
             {
                 opcode: 'createTileSet',
                 text: "创建[NAME]瓦片集的瓦片 名字:[TILE_NAME] 数据:[DATA]",

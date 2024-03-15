@@ -44,6 +44,8 @@ export const round = (num, type) => {
             return Math.ceil(Math.abs(num)) * f
         case ROUND_TYEP.FLOOR:
             return Math.floor(Math.abs(num)) * f
+        default:
+            throw new Error("你 999 错了")
     }
 }
 
