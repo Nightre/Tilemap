@@ -78,9 +78,14 @@ class Tilemap {
     calculationMembers() {
         const sort = {}
         this.members.forEach((drawable) => {
-            const layer = drawable.tilemapData.sort
-            if (!sort[layer]) sort[layer] = []
-            sort[layer].push(drawable)
+            if (this.render._drawList.inclueds(drawable._id)) {
+                const layer = drawable.tilemapData.sort
+                if (!sort[layer]) sort[layer] = []
+                sort[layer].push(drawable)
+            }else{
+                // 加入tilemap的 drawable 被删除
+                this.members.delete(drawable)
+            }
         })
         return sort
     }
