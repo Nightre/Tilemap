@@ -1,4 +1,3 @@
-
 import Scratch from "Scratch";
 import Tilemap from "./tilemap";
 import { floorNum, getCallerInfo, getPosFromScratch, getSkinByName } from "./utils";
@@ -6,29 +5,11 @@ import TilemapRender from "./tilemap-render";
 import blocks from "./blocks/blocks";
 import { Override } from "./override";
 import { POS_ATT, SHOW_MODE } from "./enum";
-import TileSet, { TileData } from "./tilemap-tileset";
+import TileSet from "./tilemap-tileset";
 
-// TODO: 位置感觉卡卡的
-/**
- * 
- * 
- *                      无敌超级唔唔唔唔警告：
- *                            没有注释
- * 
- * TilemapScratch
- *    |
- *    | 与scratch
- *    |
- * Tilemap1，Tilemap2，Tilemap3 ...
- * 逻辑，管理   
- *      Tilemap-DATA
- *      地图数据
- *      Tilemap-RENDER
- *      渲染
- *      Tilemap-TILESET      
- *      瓦片集合 
- */
 const Cast = Scratch.Cast
+// 这个class 用来用scratch积木的数据来操控Tilemap
+
 class TilemapScratch {
     constructor(runtime) {
         this.runtime = runtime || Scratch.vm.runtime
@@ -167,25 +148,13 @@ class TilemapScratch {
         if (!this.tilesets.has(tilesetName)) {
             this.tilesets.set(tilesetName, new TileSet(this.render))
         }
-        /**@type {TileSet} */
         const tileset = this.tilesets.get(tilesetName)
         if (!tileset) return
         const data = JSON.parse(args.DATA)
         if (data.texture) {
             data.texture = getSkinByName(utils, data.texture)
         }
-        
-        // const matrix = this.m4.identity();
-        // const skin = getSkinByName(utils, data.texture)
-        // this.m4.translate(matrix, [data.offset?.x || 0, data.offset?.y || 0, 0], matrix);
-        // this.m4.translate(matrix, [data.anchor?.x || 0, data.anchor?.y || 0, 0], matrix);
-        // this.m4.scale(matrix, [data.scale?.x || 0, data.scale?.y || 0, 1], matrix);
-        // this.m4.rotateZ(matrix, (90 - (data.rotate || 90)) * Math.PI / 180, matrix)
-        // this.m4.translate(matrix, [-data.anchor?.x || 0, -data.anchor?.y || 0, 0], matrix);
         tileset.addTileData(Cast.toString(args.TILE_NAME), data)
-        // const tileData = new TileData(this.m4)
-        // tileData.update(data)
-        // tileset.addTileData(Cast.toString(args.TILE_NAME), tileData)
         this.render.makeDirty()
     }
     removeTileSet(args) {
