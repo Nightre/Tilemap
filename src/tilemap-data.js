@@ -22,7 +22,7 @@ class TilemapData {
         for (let x = 0; x < newSize.x; x++) {
             for (let y = 0; y < newSize.y; y++) {
                 // 将新的地图数据设为和之前一样的数据
-                newData[x + y * newSize.x] = this._data[x + y * this._size.x] || 0
+                newData[x + y * newSize.x] = this._data[x + y * this._size.x] ?? 0
                 // 若新的那么就为-1（放大，0代表空）
             }
         }

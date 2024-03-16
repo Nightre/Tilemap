@@ -21,7 +21,10 @@ export const getSkinByName = (u, name) => {
     const skin = u.runtime.renderer._allSkins[skinId]
     return skin
 }
-
+export const coalesce = (value, defaultValue) => {
+    // 数值可能是Nan时用来代替 ??
+    return Number.isNaN(value) || value === undefined || value === null ? defaultValue : value;
+}
 export const range = (v, min, max) => {
     return Math.max(min, Math.min(v, max))
 }

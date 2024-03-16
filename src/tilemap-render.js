@@ -53,14 +53,14 @@ class TilemapRender {
     startRegion(opts) {
         this.opts = opts
         // const gl = this.renderer.gl
-// gl.enable(gl.SCISSOR_TEST);
-// gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
+        // gl.enable(gl.SCISSOR_TEST);
+        // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
         this._initVertexAttribute()
         const gl = this._gl
         const projection = this.twgl.m4.multiply(this._render._projection, this.modelMatrix)
         // scratch 不开启 SCISSOR_TEST **可能**是因为碰撞像素 》 CPU最大橡树时，会启用，裁剪了就没用了
-        gl.enable(gl.SCISSOR_TEST);
-        gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
+        // gl.enable(gl.SCISSOR_TEST);
+        // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
         gl.useProgram(this._program)
         gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projection)
         gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
@@ -75,8 +75,8 @@ class TilemapRender {
         gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, modelMatrix)
     }
     exitRegion() {
-        const gl = this._gl
-        gl.disable(gl.SCISSOR_TEST);
+        // const gl = this._gl
+        // gl.disable(gl.SCISSOR_TEST);
     }
     _useTexture(texture) {
         let textureUnit = this._usedTextures.indexOf(texture)
@@ -95,7 +95,7 @@ class TilemapRender {
     }
     _addVertex(x, y, u, v, textureUnit, color) {
 
-        const pos = transformPoint(this.currentTileData.matrix, [x, y, 0])
+        const pos = transformPoint(this.currentTileMatrix, [x, y, 0])
 
         this._pushToVertexFloat(this.currentOffset[0] + pos[0])
         this._pushToVertexFloat(this.currentOffset[1] + pos[1])
@@ -111,7 +111,7 @@ class TilemapRender {
         u1, v1,
         offsetX, offsetY,
         color,
-        tileData
+        matrix
     ) {
         if (this.count >= this.MAX_BATCH) {
             this.flush()
@@ -120,7 +120,7 @@ class TilemapRender {
             this.flush()
         }
         this.count++
-        this.currentTileData = tileData
+        this.currentTileMatrix = matrix
         this.currentOffset = [offsetX, offsetY]
         const textureUnit = this._useTexture(texture)
 
@@ -153,15 +153,16 @@ class TilemapRender {
                 members.tilemapData.skipDraw = true
             }
             this.startRegion(this.opts)
-            
+
         }
     }
     flush() {
         const gl = this._gl
 
         for (const unit of this._needBind) {
+            const texture = this._usedTextures[unit]
             gl.activeTexture(gl.TEXTURE0 + unit);
-            gl.bindTexture(gl.TEXTURE_2D, this._usedTextures[unit]);
+            gl.bindTexture(gl.TEXTURE_2D, texture);
         }
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject)
@@ -222,14 +223,17 @@ class TilemapRender {
         const gl = this._gl
         // 不多创建一个drawable，节省内存
         const texture = skin.getTexture(scale)
-        this.twgl.setTextureParameters(
-            gl, texture, {
-            minMag: skin.useNearest(scale, drawableAttribute) ? gl.NEAREST : gl.LINEAR
+        if (!skin.tilemapInit) {
+            skin.tilemapInit = true
+            this.twgl.setTextureParameters(
+                gl, texture, {
+                minMag: skin.useNearest(scale, drawableAttribute) ? gl.NEAREST : gl.LINEAR
+            }
+            );
         }
-        );
         return texture
     }
-    makeDirty(){
+    makeDirty() {
         this._render.dirty = true
     }
 }

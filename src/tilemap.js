@@ -92,7 +92,7 @@ class Tilemap {
         return sort
     }
     draw() {
-        
+
         if (!this.show || !this.tileset) return
         this.currentTileset = this.tileset
         this.calculation()
@@ -101,10 +101,10 @@ class Tilemap {
         const stepOffset = { x: 0, y: 0 }
 
         for (let y = 0; y < this.drawTileNum.y; y++) {
-            this.drawRow(y, stepOffset, toRenderMembers, true)
+            this.drawRow(y, stepOffset, toRenderMembers)
         }
     }
-    drawRow(y, stepOffset, toRenderMembers, beyondRendering) {
+    drawRow(y, stepOffset, toRenderMembers) {
         stepOffset.x = 0
         let equOffset = 0
         if (this.mode == MAP_MODE.EQUIDISTANCE && y % 2 == 0) {
@@ -144,18 +144,31 @@ class Tilemap {
         const tileData = this.currentTileset.mapping.get(id)
         if (!tileData) return // 呗删掉的tileset
         const clip = tileData.clip
+
+        const rof = tileData.isClip ? [0, 0] : tileData.skin._rotationCenter
+        // if (true) {
+        //     const w = tileData._width * this.scale.x
+        //     const h = tileData._height * this.scale.y
+
+        //     const x = offsetX - rof[0]
+        //     const y = offsetY + rof[1]
+        //     if (offsetY < -180) {
+        //         return
+        //     }
+        // }
         const texture = tileData.getTexture([
             this.scale.x * clip.width,
             this.scale.y * clip.height
         ])
-        const rof = tileData.isClip ? [0, 0] : tileData.skin._rotationCenter
+
         this.render.addTile(
             texture,
             tileData.width, tileData.height,
-            clip.x, clip.y, clip.x + clip.width, clip.y + clip.height,
+            clip.x, clip.y,
+            clip.width, clip.height,
             offsetX - rof[0], offsetY + rof[1],
             tileData.color,
-            tileData
+            tileData.matrix
         )
 
     }
@@ -195,7 +208,7 @@ class Tilemap {
             y: (drawable._position[1] - y) / (this.retlTileSize.y * this.scale.y),
         }
     }
-    clearTileData(){
+    clearTileData() {
         this.mapData.clearTileData()
     }
 }
