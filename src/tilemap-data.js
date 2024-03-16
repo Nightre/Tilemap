@@ -29,6 +29,14 @@ class TilemapData {
         this._size = newSize
         this._data = newData
     }
+    clearTileData() {
+        const size = this._size
+        for (let x = 0; x < size.x; x++) {
+            for (let y = 0; y < size.y; y++) {
+                this._data[x + y * size.x] = 0
+            }
+        }
+    }
     _posInMap(x, y, size = this._size) {
         if (x < 0 || x > size.x - 1 || y < 0 || y > size.y - 1) {
             return false

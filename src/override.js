@@ -10,7 +10,7 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
     );
 
     const numDrawables = drawables.length;
-    const canDrawTilemap = drawMode == 'default'
+    const canDrawTilemap = drawMode == 'default' && projection == this._projection
     for (let drawableIndex = 0; drawableIndex < numDrawables; ++drawableIndex) {
         const drawableID = drawables[drawableIndex];
 
@@ -46,6 +46,7 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
             if (this._regionId !== "tilemap") {
                 this._doExitDrawRegion();
                 this._regionId = "tilemap";
+                this._exitRegion = drawable.tilemapData.exitTilemapRegion
                 enterRegion = true
             }
             drawable.tilemapData.drawTilemaps(enterRegion, opts)

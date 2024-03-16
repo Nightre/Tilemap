@@ -8,5 +8,5 @@ varying vec4 vColor;
 void main(void) {
     vec4 color;
     %GET_COLOR%
-    gl_FragColor = color;
+    gl_FragColor = color * vColor;
 }

@@ -60,3 +60,17 @@ export const transformPoint = (m, v) => {
     dst[1] = (v0 * m[1] + v1 * m[5] + m[13])
     return dst;
 }
+
+export const htmlColorToUint32Color = (color) => {
+    let hex = color.replace("#", "");
+    if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    let num = parseInt(hex, 16);
+    let r = (num >> 16) & 255;
+    let g = (num >> 8) & 255;
+    let b = num & 255;
+    let a = 255;
+
+    return (a << 24) | (r << 16) | (g << 8) | b;
+}

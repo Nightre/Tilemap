@@ -1,3 +1,4 @@
+import { htmlColorToUint32Color } from "./utils"
 
 const MAX_TILE_SET = 1024
 
@@ -10,18 +11,19 @@ export class TileData {
             width: (clip?.width / size[0] || 1),
             height: (clip?.height / size[1] || 1)
         }
+        this.isClip = !(this.clip.x == 0 && this.clip.y == 0 && this.clip.width == 1 && this.clip.height == 1)
         this.tilemapRender = null
         this.tileName = null
         this.skin = skin
         this._width = clip?.width
         this._height = clip?.height
-        this.color = 0xFFFFFFFF // Unit32 color TODO:a
+        this.color = htmlColorToUint32Color(color)
         this.matrix = matrix
     }
-    get width(){
+    get width() {
         return this._width || this.skin.size[0]
     }
-    get height(){
+    get height() {
         return this._height || this.skin.size[1]
     }
     enable(tileName, tilemapRender) {
@@ -40,6 +42,7 @@ export class TileData {
 export class TileSet {
     constructor(tilemapRender) {
         this._tilemapRender = tilemapRender
+        // name => tileData
         this._tileDatas = new Map()
         // id => tileData
         this.mapping = new Map()
@@ -79,6 +82,7 @@ export class TileSet {
         this.mapping.delete(this.nameMapping.get(tileName))
         this.nameMapping.delete(tileName)
         this._tileDatas.delete(tileName)
+        
     }
     getTileData(tileName) {
         return this._tileDatas.get(tileName)

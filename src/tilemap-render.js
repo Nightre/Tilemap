@@ -52,11 +52,15 @@ class TilemapRender {
     }
     startRegion(opts) {
         this.opts = opts
-        
+        // const gl = this.renderer.gl
+// gl.enable(gl.SCISSOR_TEST);
+// gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
         this._initVertexAttribute()
         const gl = this._gl
         const projection = this.twgl.m4.multiply(this._render._projection, this.modelMatrix)
-
+        // scratch 不开启 SCISSOR_TEST **可能**是因为碰撞像素 》 CPU最大橡树时，会启用，裁剪了就没用了
+        gl.enable(gl.SCISSOR_TEST);
+        gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
         gl.useProgram(this._program)
         gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projection)
         gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
@@ -71,7 +75,8 @@ class TilemapRender {
         gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, modelMatrix)
     }
     exitRegion() {
-        // TODO
+        const gl = this._gl
+        gl.disable(gl.SCISSOR_TEST);
     }
     _useTexture(texture) {
         let textureUnit = this._usedTextures.indexOf(texture)

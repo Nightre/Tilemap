@@ -123,6 +123,17 @@ export default (Scratch) => {
                 }
             },
             {
+                opcode: 'clearTileData',
+                text: "清除[NAME]地图数据",
+                blockType: Scratch.BlockType.COMMAND,
+                arguments: {
+                    NAME: {
+                        type: Scratch.ArgumentType.STRING,
+                        defaultValue: "地面",
+                    },
+                }
+            },
+            {
                 opcode: 'getTileName',
                 text: "获取[NAME]地图 位置:[POS_X] [POS_Y] 瓦片的名称",
                 blockType: Scratch.BlockType.REPORTER,
@@ -273,7 +284,6 @@ export default (Scratch) => {
                     },
                 }
             },
-
             // {
             //     blockType: Scratch.BlockType.LABEL,
             //     text: "碰撞"

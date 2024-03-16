@@ -97,6 +97,7 @@ class TilemapScratch {
             if (!drawable.tilemapData) {
                 drawable.tilemapData = {
                     drawTilemaps: (enterRegion, opts) => this.drawTilemaps(drawable, enterRegion, opts),
+                    exitTilemapRegion: () => this.render.exitRegion(),
                     tilemaps: {}
                 }
             }
@@ -149,6 +150,11 @@ class TilemapScratch {
             if (!data) return ''
             return data.tileName
         }, '0')
+    }
+    clearTileData(args){
+        this.getTilemap(args, (tilemap) => {
+            tilemap.clearTileData()
+        })
     }
     //////////////////////////////////////////////////////////////////////////
     // getAllTileSet(args) {
