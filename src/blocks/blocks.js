@@ -170,7 +170,7 @@ export default (Scratch) => {
             // },
             {
                 opcode: 'createTileSet',
-                text: "创建[NAME]瓦片集的瓦片 名字:[TILE_NAME] 数据:[DATA]",
+                text: "创建/更新 [NAME]瓦片集的瓦片 名字:[TILE_NAME] 数据:[DATA]",
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {

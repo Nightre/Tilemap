@@ -151,7 +151,7 @@ class TilemapScratch {
             return data.tileName
         }, '0')
     }
-    clearTileData(args){
+    clearTileData(args) {
         this.getTilemap(args, (tilemap) => {
             tilemap.clearTileData()
         })
@@ -167,26 +167,25 @@ class TilemapScratch {
         if (!this.tilesets.has(tilesetName)) {
             this.tilesets.set(tilesetName, new TileSet(this.render))
         }
+        /**@type {TileSet} */
         const tileset = this.tilesets.get(tilesetName)
         if (!tileset) return
         const data = JSON.parse(args.DATA)
-        const matrix = this.m4.identity();
-        const skin = getSkinByName(utils, data.texture)
-        this.m4.translate(matrix, [
-            data.offset?.x || 0 + data.anchor?.x || 0,
-            data.offset?.y || 0 + data.anchor?.y || 0,
-            0],
-            matrix);
-        this.m4.scale(matrix, [data.scale?.x || 0, data.scale?.y || 0, 1], matrix);
-        this.m4.rotateZ(matrix, (90 - (data.rotate || 90)) * Math.PI / 180, matrix)
-        this.m4.translate(matrix, [-data.anchor?.x || 0, -data.anchor?.y || 0, 0], matrix);
-
-        tileset.addTileData(Cast.toString(args.TILE_NAME), new TileData(
-            skin,
-            data.clip,
-            data.color,
-            matrix
-        ))
+        if (data.texture) {
+            data.texture = getSkinByName(utils, data.texture)
+        }
+        
+        // const matrix = this.m4.identity();
+        // const skin = getSkinByName(utils, data.texture)
+        // this.m4.translate(matrix, [data.offset?.x || 0, data.offset?.y || 0, 0], matrix);
+        // this.m4.translate(matrix, [data.anchor?.x || 0, data.anchor?.y || 0, 0], matrix);
+        // this.m4.scale(matrix, [data.scale?.x || 0, data.scale?.y || 0, 1], matrix);
+        // this.m4.rotateZ(matrix, (90 - (data.rotate || 90)) * Math.PI / 180, matrix)
+        // this.m4.translate(matrix, [-data.anchor?.x || 0, -data.anchor?.y || 0, 0], matrix);
+        tileset.addTileData(Cast.toString(args.TILE_NAME), data)
+        // const tileData = new TileData(this.m4)
+        // tileData.update(data)
+        // tileset.addTileData(Cast.toString(args.TILE_NAME), tileData)
         this.render.makeDirty()
     }
     removeTileSet(args) {
