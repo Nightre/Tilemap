@@ -15,7 +15,6 @@ export default {
         },
     ],
     plugins: [
-        uglify(),
         string({
             include: [
                 "**/*.frag",

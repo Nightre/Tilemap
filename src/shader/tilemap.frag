@@ -1,4 +1,4 @@
-precision mediump float;
+precision lowp float;
 uniform sampler2D uTextures[%TEXTURE_NUM%];
 
 varying vec2 vRegion;
