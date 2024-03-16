@@ -5,7 +5,7 @@ import { floorNum, getCallerInfo, getPosFromScratch, getSkinByName } from "./uti
 import TilemapRender from "./tilemap-render";
 import blocks from "./blocks/blocks";
 import { Override } from "./override";
-import { SHOW_MODE } from "./enum";
+import { POS_ATT, SHOW_MODE } from "./enum";
 import TileSet, { TileData } from "./tilemap-tileset";
 
 // TODO: 位置感觉卡卡的
@@ -117,7 +117,7 @@ class TilemapScratch {
     }
     destoryTilemap(args) {
         this.getTilemap(args, (tilemap) => {
-            
+
             this.tilemaps.delete(tilemap.name)
             tilemap.destory()
         })
@@ -165,17 +165,18 @@ class TilemapScratch {
         if (!tileset) return
         const data = JSON.parse(args.DATA)
         const matrix = this.m4.identity();
+        const skin = getSkinByName(utils, data.texture)
         this.m4.translate(matrix, [
             data.offset?.x || 0 + data.anchor?.x || 0,
             data.offset?.y || 0 + data.anchor?.y || 0,
             0],
-         matrix);
+            matrix);
         this.m4.scale(matrix, [data.scale?.x || 0, data.scale?.y || 0, 1], matrix);
         this.m4.rotateZ(matrix, (90 - (data.rotate || 90)) * Math.PI / 180, matrix)
         this.m4.translate(matrix, [-data.anchor?.x || 0, -data.anchor?.y || 0, 0], matrix);
 
         tileset.addTileData(Cast.toString(args.TILE_NAME), new TileData(
-            getSkinByName(utils, data.texture),
+            skin,
             data.clip,
             data.color,
             matrix
@@ -221,6 +222,19 @@ class TilemapScratch {
             tileData.parentTilemap = null
         }
         this.render.makeDirty()
+    }
+    ///////////////////////////////////////////////////////////
+    mapToPos(args) {
+        return this.getTilemap(args, (tilemap) => {
+            const data = tilemap.mapToPos(floorNum(args.POS_X), floorNum(args.POS_Y))
+            return args.POS_ATT == POS_ATT.X ? data.x : data.y
+        })
+    }
+    posToMap(args) {
+        return this.getTilemap(args, (tilemap) => {
+            const data = tilemap.posToMap(Cast.toNumber(args.POS_X), Cast.toNumber(args.POS_Y))
+            return args.POS_ATT == POS_ATT.X ? data.x : data.y
+        })
     }
 }
 

@@ -38,7 +38,7 @@ class Tilemap {
         const drawable = this.drawable
         switch (this.mode) {
             case MAP_MODE.EQUIDISTANCE:
-                this.tileSize.y = this.retlTileSize.y * 0.5
+                this.tileSize.y = Math.round(this.retlTileSize.y / 2)
                 break;
             case MAP_MODE.ORTHOGONAL:
                 this.tileSize.y = this.retlTileSize.y
@@ -53,10 +53,9 @@ class Tilemap {
             y: drawable._scale[1] / 100
         }
         this.camera = {
-            x: (drawable._position[0] + this.nativeSize[0]/ 2)  / this.scale.x,
-            y: (drawable._position[1] - this.nativeSize[1]/ 2)  / this.scale.y,
+            x: Math.ceil(drawable._position[0] + this.nativeSize[0] / 2)/this.scale.x,
+            y: Math.ceil(drawable._position[1] - this.nativeSize[1] / 2)/this.scale.y,
         }
-        // this.nativeSize[1] / 2 是缩放中心
         this.offset = {
             x: this.camera.x % this.tileSize.x,
             y: this.camera.y % this.tileSize.y
@@ -69,7 +68,6 @@ class Tilemap {
             x: Math.ceil(this.nativeSize[0] / (this.tileSize.x * this.scale.x)) + 1,
             y: Math.ceil(this.nativeSize[1] / (this.tileSize.y * this.scale.y)) + 1
         }
-        // 不能用drawable的矩阵，因为有旋转中心，skin缩放
         const model = m4.identity()
         m4.translate(model, [-this.nativeSize[0] / 2, this.nativeSize[1] / 2, 0], model)
         m4.scale(model, [this.scale.x, this.scale.y, 1], model)
@@ -102,7 +100,7 @@ class Tilemap {
             stepOffset.x = 0
             let equOffset = 0
             if (this.mode == MAP_MODE.EQUIDISTANCE && y % 2 == 0) {
-                equOffset += this.tileSize.x / 2
+                equOffset += Math.round(this.tileSize.x / 2)
             }
             for (let x = 0; x < this.drawTileNum.x; x++) {
                 this.drawTile(
@@ -139,14 +137,17 @@ class Tilemap {
         const tileData = this.tileset.mapping.get(id)
         if (!tileData) return // 呗删掉的tileset
         const clip = tileData.clip
-
+        const texture = tileData.getTexture([
+            this.scale.x * clip.width,
+            this.scale.y * clip.height
+        ])
+        const rof = tileData.skin._rotationCenter
         this.render.addTile(
-            tileData.getTexture([
-                this.scale.x * clip.width,
-                this.scale.y * clip.height
-            ]),
+            texture,
             tileData.width, tileData.height,
-            clip.x, clip.y, clip.x + clip.width, clip.y + clip.height, offsetX, offsetY, 0xFFFF00FF,
+            clip.x, clip.y, clip.x + clip.width, clip.y + clip.height,
+            offsetX - rof[0], offsetY + rof[1],
+            0xFFFF00FF,
             tileData
         )
 
@@ -172,6 +173,20 @@ class Tilemap {
         const data = this.tileset.nameMapping.get(tileName)
         if (data === undefined) return // data 可能为 0
         this.mapData.setData(pos, data)
+    }
+    mapToPos(x, y) {
+        const drawable = this.drawable
+        return {
+            x: (x * (this.retlTileSize.x * this.scale.x) + drawable._position[0]),
+            y: (drawable._position[1] - y * (this.retlTileSize.y * this.scale.y)),
+        }
+    }
+    posToMap(x, y) {
+        const drawable = this.drawable
+        return {
+            x: (x - drawable._position[0]) / (this.retlTileSize.x * this.scale.x),
+            y: (drawable._position[1] - y) / (this.retlTileSize.y * this.scale.y),
+        }
     }
 }
 

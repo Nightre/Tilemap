@@ -12,3 +12,7 @@ export const ROUND_TYEP = {
     FLOOR: 0,
     CEIL: 1,
 }
+export const POS_ATT = {
+    X: 'x',
+    Y: 'y'
+}

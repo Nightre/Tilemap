@@ -1,4 +1,4 @@
-import { MAP_MODE, SHOW_MODE } from "../enum";
+import { MAP_MODE, POS_ATT, SHOW_MODE } from "../enum";
 import lang from "./lang";
 
 const translate = (id) => {
@@ -41,11 +41,11 @@ export default (Scratch) => {
                         type: Scratch.ArgumentType.STRING,
                         defaultValue: "地面",
                     },
-                    LAYER:{
+                    LAYER: {
                         type: Scratch.ArgumentType.NUMBER,
                         defaultValue: 0,
                     },
-                    TILE_SET:{
+                    TILE_SET: {
                         type: Scratch.ArgumentType.STRING,
                         defaultValue: "城市",
                     },
@@ -82,7 +82,7 @@ export default (Scratch) => {
             },
             {
                 opcode: 'resizeTileData',
-                text: "设置[NAME]地图大小 :[SIZE_X] [SIZE_Y]",
+                text: "设置[NAME]地图大小 :[SIZE_X] [SIZE_Y]（不会清除原本数据）",
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     SIZE_X: {
@@ -106,11 +106,11 @@ export default (Scratch) => {
                 arguments: {
                     POS_X: {
                         type: Scratch.ArgumentType.NUMBER,
-                        defaultValue: 0,
+                        defaultValue: 1,
                     },
                     POS_Y: {
                         type: Scratch.ArgumentType.NUMBER,
-                        defaultValue: 0,
+                        defaultValue: 1,
                     },
                     VALUE: {
                         type: Scratch.ArgumentType.STRING,
@@ -129,11 +129,11 @@ export default (Scratch) => {
                 arguments: {
                     POS_X: {
                         type: Scratch.ArgumentType.NUMBER,
-                        defaultValue: 0,
+                        defaultValue: 1,
                     },
                     POS_Y: {
                         type: Scratch.ArgumentType.NUMBER,
-                        defaultValue: 0,
+                        defaultValue: 1,
                     },
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
@@ -172,7 +172,7 @@ export default (Scratch) => {
                     },
                     DATA: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: JSON.stringify({"texture":"造型1","clip":{"x":0,"y":0,"width":50,"height":50},"scale":{"x":1,"y":1},"offset":{"x":0,"y":0},"anchor":{"x":25,"y":-25},"rotate":90,"color":"FFFFFF"})
+                        defaultValue: JSON.stringify({ "texture": "造型1", "clip": { "x": 0, "y": 0, "width": 50, "height": 50 }, "scale": { "x": 1, "y": 1 }, "offset": { "x": 0, "y": 0 }, "anchor": { "x": 25, "y": -25 }, "rotate": 90, "color": "FFFFFF" })
                     }
                 }
             },
@@ -215,6 +215,7 @@ export default (Scratch) => {
                         type: Scratch.ArgumentType.NUMBER,
                         defaultValue: 0,
                     },
+
                 }
             },
             {
@@ -222,6 +223,57 @@ export default (Scratch) => {
                 text: "退出当前所在的图层",
                 blockType: Scratch.BlockType.COMMAND,
             },
+            {
+                blockType: Scratch.BlockType.LABEL,
+                text: "坐标"
+            },
+            {
+                opcode: 'posToMap',
+                text: "世界坐标 [POS_X] [POS_Y] 转[NAME]地图的坐标 [POS_ATT]",
+                blockType: Scratch.BlockType.REPORTER,
+                arguments: {
+                    NAME: {
+                        type: Scratch.ArgumentType.STRING,
+                        defaultValue: "地面",
+                    },
+                    POS_ATT: {
+                        type: Scratch.ArgumentType.STRING,
+                        menu: "POS_ATT",
+                    },
+                    POS_X: {
+                        type: Scratch.ArgumentType.NUMBER,
+                        defaultValue: 0,
+                    },
+                    POS_Y: {
+                        type: Scratch.ArgumentType.NUMBER,
+                        defaultValue: 0,
+                    },
+                }
+            },
+            {
+                opcode: 'mapToPos',
+                text: "[NAME]地图的坐标 [POS_X] [POS_Y] 转世界坐标 [POS_ATT]",
+                blockType: Scratch.BlockType.REPORTER,
+                arguments: {
+                    NAME: {
+                        type: Scratch.ArgumentType.STRING,
+                        defaultValue: "地面",
+                    },
+                    POS_ATT: {
+                        type: Scratch.ArgumentType.STRING,
+                        menu: "POS_ATT",
+                    },
+                    POS_X: {
+                        type: Scratch.ArgumentType.NUMBER,
+                        defaultValue: 1,
+                    },
+                    POS_Y: {
+                        type: Scratch.ArgumentType.NUMBER,
+                        defaultValue: 1,
+                    },
+                }
+            },
+
             // {
             //     blockType: Scratch.BlockType.LABEL,
             //     text: "碰撞"
@@ -268,6 +320,18 @@ export default (Scratch) => {
                     {
                         value: SHOW_MODE.HIDE,
                         text: "隐藏",
+                    },
+                ]
+            },
+            POS_ATT: {
+                items: [
+                    {
+                        value: POS_ATT.X,
+                        text: "x",
+                    },
+                    {
+                        value: POS_ATT.Y,
+                        text: "y",
                     },
                 ]
             },

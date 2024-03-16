@@ -5,18 +5,24 @@ export class TileData {
     constructor(skin, clip, color, matrix) {
         const size = skin.size
         this.clip = {
-            x: (clip.x || 0) / size[0],
-            y: (clip.y || 0) / size[1],
-            width: (clip.width || 1) / size[0],
-            height: (clip.height || 1) / size[1]
+            x: (clip?.x / size[0] || 0),
+            y: (clip?.y / size[1] || 0),
+            width: (clip?.width / size[0] || 1),
+            height: (clip?.height / size[1] || 1)
         }
         this.tilemapRender = null
         this.tileName = null
-        this.width = clip.width
-        this.height = clip.height
-        this.color = 0xFFFFFFFF // Unit32 color TODO:a
         this.skin = skin
+        this._width = clip?.width
+        this._height = clip?.height
+        this.color = 0xFFFFFFFF // Unit32 color TODO:a
         this.matrix = matrix
+    }
+    get width(){
+        return this._width || this.skin.size[0]
+    }
+    get height(){
+        return this._height || this.skin.size[1]
     }
     enable(tileName, tilemapRender) {
         this.tileName = tileName
