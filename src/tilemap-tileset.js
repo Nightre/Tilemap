@@ -16,7 +16,7 @@ export class TileData {
         // if (!this.skin) {
         //     return
         // }
-        const skinSize = this.skin.size
+
         if ((this.matrix == undefined) || data.offset || data.anchor || data.scale || data.rotate || data.anchor) {
             const m4 = this.tilemapRender.twgl.m4
             const offset = data.offset || this.data?.offset
@@ -33,18 +33,19 @@ export class TileData {
             m4.translate(matrix, [coalesce(-anchor?.x, 0), coalesce(-anchor?.y, 0), 0], matrix);
             this.matrix = matrix
         }
-        const clip = data.clip
-        const oldClip = this.data.clip
 
-        this.clip = {
-            x: coalesce((clip?.x ?? oldClip?.x) / skinSize[0], 0),
-            y: coalesce((clip?.y ?? oldClip?.y) / skinSize[1], 0),
-            width: coalesce((clip?.width ?? oldClip?.width) / skinSize[0], 1),
-            height: coalesce((clip?.height ?? oldClip?.height) / skinSize[1], 1)
+        const oldClip = this.data.clip
+        data.clip = {
+            x: data.clip?.x ?? oldClip?.x,
+            y: data.clip?.y ?? oldClip?.y,
+            width: data.clip?.width ?? oldClip?.width,
+            height: data.clip?.height ?? oldClip?.height
         }
+        const clip = data.clip
+        this.updateClip(data.clip)
         this.isClip = !(this.clip?.x == 0 && this.clip?.y == 0 && this.clip?.width == 1 && this.clip?.height == 1)
-        this._width = clip?.width ?? oldClip?.width
-        this._height = clip?.height ?? oldClip?.height
+        this._width = clip?.width
+        this._height = clip?.height
 
         if (data.color) {
             this.color = htmlColorToUint32Color(data.color)
@@ -59,11 +60,12 @@ export class TileData {
     // 根据大小updateClip
     updateClip(clip = this.data.clip) {
         const skinSize = this.skin.size
+        
         this.clip = {
-            x: coalesce((clip?.x ?? oldClip?.x) / skinSize[0], 0),
-            y: coalesce((clip?.y ?? oldClip?.y) / skinSize[1], 0),
-            width: coalesce((clip?.width ?? oldClip?.width) / skinSize[0], 1),
-            height: coalesce((clip?.height ?? oldClip?.height) / skinSize[1], 1)
+            x: coalesce(clip?.x / skinSize[0], 0),
+            y: coalesce(clip?.y / skinSize[1], 0),
+            width: coalesce(clip?.width / skinSize[0], 1),
+            height: coalesce(clip?.height / skinSize[1], 1)
         }
     }
     get width() {

@@ -2,7 +2,7 @@ import Scratch from "Scratch";
 import { ROUND_TYEP } from "./enum";
 
 export const createBuffer = (gl, bufferType, size, usage) => {
-    var buffer = gl.createBuffer();
+    let buffer = gl.createBuffer();
     gl.bindBuffer(bufferType, buffer);
     gl.bufferData(bufferType, size, usage);
     return buffer;
@@ -48,7 +48,7 @@ export const round = (num, type) => {
         case ROUND_TYEP.FLOOR:
             return Math.floor(Math.abs(num)) * f
         default:
-            throw new Error("你 999 错了")
+            throw new Error("你这样我很难帮你办事哟！")
     }
 }
 

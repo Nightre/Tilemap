@@ -101,18 +101,35 @@ class Tilemap {
         const stepOffset = { x: 0, y: 0 }
 
         for (let y = 0; y < this.drawTileNum.y; y++) {
-            this.drawRow(y, stepOffset, toRenderMembers)
+            this.drawRow(y, stepOffset, toRenderMembers, false)
+        }
+        for (let y = 0; y < this.drawTileNum.y; y++) {
+            this.drawRow(y + this.drawTileNum.y, stepOffset, toRenderMembers, true)
         }
     }
-    drawRow(y, stepOffset, toRenderMembers) {
-        stepOffset.x = 0
+    drawRow(y, stepOffset, toRenderMembers, colBeyondRendering) {
+
         let equOffset = 0
         if (this.mode == MAP_MODE.EQUIDISTANCE && y % 2 == 0) {
             equOffset += Math.round(this.tileSize.x / 2)
         }
+        // rowBeyondRendering
+        stepOffset.x = -this.tileSize.x * this.drawTileNum.x
+        for (let x = -this.drawTileNum.x; x < 0; x++) {
+            this.drawTile(
+                equOffset + stepOffset.x, stepOffset.y,
+                this.tileStart.x + x, this.tileStart.y + y,
+                true
+            )
+            stepOffset.x += this.tileSize.x
+        }
+        // rowBeyondRendering
+        stepOffset.x = 0
         for (let x = 0; x < this.drawTileNum.x; x++) {
             this.drawTile(
-                equOffset + stepOffset.x, stepOffset.y, this.tileStart.x + x, this.tileStart.y + y
+                equOffset + stepOffset.x, stepOffset.y,
+                this.tileStart.x + x, this.tileStart.y + y,
+                colBeyondRendering
             )
             stepOffset.x += this.tileSize.x
         }
@@ -136,7 +153,7 @@ class Tilemap {
      * @param {Number} x 数据索引
      * @param {Number} y 数据索引
      */
-    drawTile(offsetX, offsetY, x, y) {
+    drawTile(offsetX, offsetY, x, y, beyondRendering) {
 
         const id = this.mapData.getData({ x, y })
         if (!id) return
@@ -156,6 +173,15 @@ class Tilemap {
         //         return
         //     }
         // }
+        if (beyondRendering) {
+            // TODO: 矩阵偏移
+            if (offsetY + rof[1] + tileData.height < -this.nativeSize[1]) {
+                return
+            }
+            if (offsetX - rof[0] + tileData.height < 0) {
+                return
+            }
+        }
         const texture = tileData.getTexture([
             this.scale.x * clip.width,
             this.scale.y * clip.height

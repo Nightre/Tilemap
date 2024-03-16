@@ -9,10 +9,10 @@ import TileSet from "./tilemap-tileset";
 
 const Cast = Scratch.Cast
 // 这个class 用来用scratch积木的数据来操控Tilemap
-
+// TODO:纹理更新
 class TilemapScratch {
     constructor(runtime) {
-        this.runtime = runtime || Scratch.vm.runtime
+        this.runtime = runtime || Scratch?.vm?.runtime
         if (!this.runtime) {
             throw Error("你的scratch运行不了啊，老兄！！")
         }
