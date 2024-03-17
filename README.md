@@ -21,4 +21,3 @@ export const SCRATCH_BUILD_TYPE = SCRATCH_TYEP.TURBOWARP
 
 * test
 * collision
-* 超出
