@@ -1,3 +1,4 @@
+import { SCRATCH_BUILD_TYPE, SCRATCH_TYEP } from "./const"
 import { createProgramInfo } from "./shader"
 import { createBuffer, transformPoint } from "./utils"
 
@@ -14,6 +15,7 @@ const drawableAttribute = {
 
 class TilemapRender {
     constructor(runtime) {
+        console.log("render 启动！")
         this._render = runtime.renderer
 
         this.twgl = this._render.exports.twgl
@@ -44,26 +46,35 @@ class TilemapRender {
         this._indexBufferObject = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, this._indexData.byteLength, gl.STATIC_DRAW)
         this._vertexBufferObject = createBuffer(gl, gl.ARRAY_BUFFER, this._vertexData.byteLength, gl.STATIC_DRAW)
         gl.useProgram(this._program)
+        gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
         this._initIndexBuffer()
         this._usedTextures = []
         this._needBind = new Set()
 
         this.modelMatrix = this.twgl.m4.identity()
+        this.projectionLoc = gl.getUniformLocation(this._program, "uProjectionModel")
     }
     startRegion(opts) {
         this.opts = opts
         // const gl = this.renderer.gl
         // gl.enable(gl.SCISSOR_TEST);
         // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
-        this._initVertexAttribute()
+
         const gl = this._gl
+        if (SCRATCH_BUILD_TYPE == SCRATCH_TYEP.GANDI)
+            this.twgl.bindFramebufferInfo(gl, null);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject)
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject)
+        //this.twgl.bindFramebufferInfo(gl, null);
         const projection = this.twgl.m4.multiply(this._render._projection, this.modelMatrix)
         // scratch 不开启 SCISSOR_TEST **可能**是因为碰撞像素 》 CPU最大橡树时，会启用，裁剪了就没用了
         // gl.enable(gl.SCISSOR_TEST);
         // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
+        //gl.disable(gl.DEPTH_TEST)
         gl.useProgram(this._program)
-        gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, projection)
-        gl.uniform1iv(gl.getUniformLocation(this._program, "uTextures"), this.TEXTURES_UNIT_ARRAY)
+        this._initVertexAttribute()
+        gl.uniformMatrix4fv(this.projectionLoc, false, projection)
 
         this._afterFlush()
     }
@@ -72,7 +83,7 @@ class TilemapRender {
         const projection = this._render._projection
         this.modelMatrix = this.twgl.m4.copy(modelMatrix)
         this.twgl.m4.multiply(projection, modelMatrix, modelMatrix)
-        gl.uniformMatrix4fv(gl.getUniformLocation(this._program, "uProjectionModel"), false, modelMatrix)
+        gl.uniformMatrix4fv(this.projectionLoc, false, modelMatrix)
     }
     exitRegion() {
         // const gl = this._gl
@@ -158,15 +169,12 @@ class TilemapRender {
     }
     flush() {
         const gl = this._gl
-
         for (const unit of this._needBind) {
             const texture = this._usedTextures[unit]
             gl.activeTexture(gl.TEXTURE0 + unit);
             gl.bindTexture(gl.TEXTURE_2D, texture);
         }
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject)
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject)
+        window.tilemapDrawcalls += 1
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._typedVertexFloat.subarray(0, this.count * FLOAT32_PER_TILE))
         gl.drawElements(gl.TRIANGLES, this.count * INDEX_PER_TILE, gl.UNSIGNED_SHORT, 0)
         this._afterFlush()

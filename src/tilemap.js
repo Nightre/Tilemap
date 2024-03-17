@@ -1,4 +1,4 @@
-import { MAP_MODE, ROUND_TYEP } from "./enum"
+import { MAP_MODE, ROUND_TYEP } from "./const"
 import TilemapRender from "./tilemap-render"
 import { TileData } from "./tilemap-tileset"
 import TilemapData from "./tilemap-data"
@@ -32,6 +32,7 @@ class Tilemap {
 
 
         this.currentTileset = null
+
     }
     get tileset() {
         return this.app.tilesets.get(this.tilesetName)
@@ -103,9 +104,9 @@ class Tilemap {
         for (let y = 0; y < this.drawTileNum.y; y++) {
             this.drawRow(y, stepOffset, toRenderMembers, false)
         }
-        for (let y = 0; y < this.drawTileNum.y; y++) {
-            this.drawRow(y + this.drawTileNum.y, stepOffset, toRenderMembers, true)
-        }
+        // for (let y = 0; y < this.drawTileNum.y; y++) {
+        //     this.drawRow(y + this.drawTileNum.y, stepOffset, toRenderMembers, true)
+        // }
     }
     drawRow(y, stepOffset, toRenderMembers, colBeyondRendering) {
 
@@ -114,15 +115,15 @@ class Tilemap {
             equOffset += Math.round(this.tileSize.x / 2)
         }
         // rowBeyondRendering
-        stepOffset.x = -this.tileSize.x * this.drawTileNum.x
-        for (let x = -this.drawTileNum.x; x < 0; x++) {
-            this.drawTile(
-                equOffset + stepOffset.x, stepOffset.y,
-                this.tileStart.x + x, this.tileStart.y + y,
-                true
-            )
-            stepOffset.x += this.tileSize.x
-        }
+        // stepOffset.x = -this.tileSize.x * this.drawTileNum.x
+        // for (let x = -this.drawTileNum.x; x < 0; x++) {
+        //     this.drawTile(
+        //         equOffset + stepOffset.x, stepOffset.y,
+        //         this.tileStart.x + x, this.tileStart.y + y,
+        //         true
+        //     )
+        //     stepOffset.x += this.tileSize.x
+        // }
         // rowBeyondRendering
         stepOffset.x = 0
         for (let x = 0; x < this.drawTileNum.x; x++) {
@@ -133,6 +134,14 @@ class Tilemap {
             )
             stepOffset.x += this.tileSize.x
         }
+        // for (let x = this.drawTileNum.x; x < this.drawTileNum.x * 2; x++) {
+        //     this.drawTile(
+        //         equOffset + stepOffset.x, stepOffset.y,
+        //         this.tileStart.x + x, this.tileStart.y + y,
+        //         true
+        //     )
+        //     stepOffset.x += this.tileSize.x
+        // }
         this.render.drawMembers(this.tileStart.y + y, toRenderMembers)
         stepOffset.y -= this.tileSize.y
     }
@@ -175,10 +184,10 @@ class Tilemap {
         // }
         if (beyondRendering) {
             // TODO: 矩阵偏移
-            if (offsetY + rof[1] + tileData.height < -this.nativeSize[1]) {
+            if (offsetY + rof[1] - tileData.height < -this.nativeSize[1]) {
                 return
             }
-            if (offsetX - rof[0] + tileData.height < 0) {
+            if (offsetX - rof[0] + tileData.width < 0 || offsetX - rof[0] > this.nativeSize[0]) {
                 return
             }
         }

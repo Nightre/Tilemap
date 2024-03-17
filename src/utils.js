@@ -1,5 +1,5 @@
 import Scratch from "Scratch";
-import { ROUND_TYEP } from "./enum";
+import { ROUND_TYEP } from "./const";
 
 export const createBuffer = (gl, bufferType, size, usage) => {
     let buffer = gl.createBuffer();

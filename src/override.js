@@ -1,16 +1,18 @@
+import { SCRATCH_BUILD_TYPE, SCRATCH_TYEP } from "./const";
 
 function _drawThese(drawables, drawMode, projection, opts = {}) {
     const gl = this._gl;
     const twgl = this.exports.twgl
     let currentShader = null;
-
     const framebufferSpaceScaleDiffers = (
         'framebufferWidth' in opts && 'framebufferHeight' in opts &&
         opts.framebufferWidth !== this._nativeSize[0] && opts.framebufferHeight !== this._nativeSize[1]
     );
 
     const numDrawables = drawables.length;
-    const canDrawTilemap = drawMode == 'default' && projection == this._projection
+    // this.tilemapFirstRender gandi ide 雷神会绘制两次
+    const canDrawTilemap = drawMode == 'default' && projection == this._projection && this.tilemapFirstRender
+
     for (let drawableIndex = 0; drawableIndex < numDrawables; ++drawableIndex) {
         const drawableID = drawables[drawableIndex];
 
@@ -94,6 +96,7 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
     }
 
     this._regionId = null;
+    this.tilemapFirstRender = true
 }
 
 export class Override {
@@ -101,5 +104,12 @@ export class Override {
         runtime.renderer._drawThese = (..._arguments) => {
             _drawThese.call(runtime.renderer, ..._arguments) // 调用
         };
+        const oldDraw = runtime.renderer.draw
+        runtime.renderer.draw = function () {
+            window.tilemapDrawcalls = 0
+            // this.tilemapFirstRender gandi ide 雷神会绘制两次
+            runtime.renderer.tilemapFirstRender = false
+            oldDraw.call(runtime.renderer)
+        }
     }
 }

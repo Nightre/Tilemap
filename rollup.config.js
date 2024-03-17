@@ -15,16 +15,21 @@ export default {
         },
     ],
     plugins: [
+        //uglify(),
         string({
             include: [
                 "**/*.frag",
                 "**/*.vert"
             ]
         }),
-        server({
-            open: true,
-            contentBase: '.',
-            port: 8000
-        }),
+        // server({
+        //     contentBase: ['dist'],
+        //     port: 8000,
+        //     headers: {
+        //         'Access-Control-Allow-Origin': '*',
+        //         'Access-Control-Allow-Methods': '*',
+
+        //     }
+        // }),
     ],
 };

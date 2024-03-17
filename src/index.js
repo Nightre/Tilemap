@@ -4,30 +4,33 @@ import { floorNum, getCallerInfo, getPosFromScratch, getSkinByName } from "./uti
 import TilemapRender from "./tilemap-render";
 import blocks from "./blocks/blocks";
 import { Override } from "./override";
-import { POS_ATT, SHOW_MODE } from "./enum";
+import { POS_ATT, SCRATCH_TYEP, SHOW_MODE } from "./const";
 import TileSet from "./tilemap-tileset";
 
 const Cast = Scratch.Cast
+
 // 这个class 用来用scratch积木的数据来操控Tilemap
 // TODO:纹理更新
 class TilemapScratch {
     constructor(runtime) {
         this.runtime = runtime || Scratch?.vm?.runtime
-        if (!this.runtime) {
-            throw Error("你的scratch运行不了啊，老兄！！")
+        if (this.runtime) {
+            this.renderer = this.runtime.renderer
+            this.m4 = this.renderer.exports.twgl.m4
+
+            //this.tilemap = new Tilemap(this.runtime)
+
+            // 所有tilemap共用一个tilemapRender
+            this.render = new TilemapRender(this.runtime)
+            this.override = new Override(this.runtime)
+            this.tilemaps = new Map
+            this.tilesets = new Map
+
+            window.tilemap = this
+            this.waste = false
+        } else {
+            this.waste = true
         }
-        this.renderer = this.runtime.renderer
-        this.m4 = this.renderer.exports.twgl.m4
-
-        //this.tilemap = new Tilemap(this.runtime)
-
-        // 所有tilemap共用一个tilemapRender
-        this.render = new TilemapRender(this.runtime)
-        this.override = new Override(this.runtime)
-        this.tilemaps = new Map
-        this.tilesets = new Map
-
-        window.tilemap = this
         // const gl = this.renderer.gl
         // gl.enable(gl.SCISSOR_TEST);
         // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
@@ -70,7 +73,7 @@ class TilemapScratch {
         this.render.makeDirty()
     }
     updateTilemap(args, utils) {
-        const { drawable } = getCallerInfo(utils)
+        const { drawable } = getCallerInfo(utils, this.runtime)
         const tilemapName = Cast.toString(args.NAME)
         if (!this.tilemaps.has(tilemapName)) {
             const newTilemap = new Tilemap(this, drawable, tilemapName)
@@ -152,7 +155,7 @@ class TilemapScratch {
         if (!tileset) return
         const data = JSON.parse(args.DATA)
         if (data.texture) {
-            data.texture = getSkinByName(utils, data.texture)
+            data.texture = getSkinByName(utils, data.texture, this.runtime)
         }
         tileset.addTileData(Cast.toString(args.TILE_NAME), data)
         this.render.makeDirty()
@@ -164,7 +167,7 @@ class TilemapScratch {
         this.render.makeDirty()
     }
     joinTileMapLayer(args, utils) {
-        const { drawable } = getCallerInfo(utils)
+        const { drawable } = getCallerInfo(utils, this.runtime)
         if (drawable.tilemapData && drawable.tilemapData.tilemaps && Object.keys(drawable.tilemapData.tilemaps).length > 0) {
             return // 有tilemap无法加入其他tilemap
         }
@@ -181,7 +184,7 @@ class TilemapScratch {
         this.render.makeDirty()
     }
     setLayerInTileMap(args, utils) {
-        const { drawable } = getCallerInfo(utils)
+        const { drawable } = getCallerInfo(utils, this.runtime)
         const tileData = drawable.tilemapData
         if (tileData) {
             tileData.sort = floorNum(args.LAYER) - 1 // - 1 scratch一般索引第一个是1，所以减一
@@ -189,7 +192,7 @@ class TilemapScratch {
         this.render.makeDirty()
     }
     quitTileMap(_, utils) {
-        const { drawable } = getCallerInfo(utils)
+        const { drawable } = getCallerInfo(utils, this.runtime)
         const tileData = drawable.tilemapData
         if (tileData && tileData.parentTilemap) {
             tileData.parentTilemap.members.delete(drawable)
@@ -212,4 +215,28 @@ class TilemapScratch {
     }
 }
 
-Scratch.extensions.register(new TilemapScratch());
+// Scratch.extensions.register(new TilemapScratch());
+/// Gandi Ide
+window.tempExt = {
+    Extension: TilemapScratch,
+    info: {
+        name: "nights.tilemap.name",
+        description: "nights.tilemap.descp",
+        extensionId: "nightstilemap",
+        //iconURL: _picture,
+        //insetIconURL: _icon,
+        featured: true,
+        disabled: false,
+        collaborator: "nights"
+    },
+    "l10n": {
+        "zh-cn": {
+            "nights.tilemap.name": "瓦片地图",
+            "nights.tilemap.descp": "高性能的瓦片地图渲染器"
+        },
+        "en": {
+            "nights.tilemap.name": "Tilemap",
+            "nights.tilemap.descp": "A high-performance tile map renderer"
+        }
+    }
+};

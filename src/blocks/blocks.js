@@ -1,4 +1,4 @@
-import { MAP_MODE, POS_ATT, SHOW_MODE } from "../enum";
+import { MAP_MODE, POS_ATT, SHOW_MODE } from "../const";
 import lang from "./lang";
 
 const translate = (id) => {
