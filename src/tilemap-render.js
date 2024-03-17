@@ -1,4 +1,3 @@
-import { SCRATCH_BUILD_TYPE, SCRATCH_TYEP } from "./const"
 import { createProgramInfo } from "./shader"
 import { createBuffer, transformPoint } from "./utils"
 
@@ -59,8 +58,8 @@ class TilemapRender {
         // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
 
         const gl = this._gl
-        if (SCRATCH_BUILD_TYPE == SCRATCH_TYEP.GANDI)
-            this.twgl.bindFramebufferInfo(gl, null);
+        // if (SCRATCH_BUILD_TYPE == SCRATCH_TYEP.GANDI)
+        //     this.twgl.bindFramebufferInfo(gl, null);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject)
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject)

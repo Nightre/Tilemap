@@ -1,4 +1,3 @@
-import { SCRATCH_BUILD_TYPE, SCRATCH_TYEP } from "./const";
 
 function _drawThese(drawables, drawMode, projection, opts = {}) {
     const gl = this._gl;

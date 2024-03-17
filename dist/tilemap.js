@@ -182,6 +182,8 @@
             // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
 
             const gl = this._gl;
+            // if (SCRATCH_BUILD_TYPE == SCRATCH_TYEP.GANDI)
+            //     this.twgl.bindFramebufferInfo(gl, null);
 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject);
             gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject);
@@ -1376,8 +1378,6 @@
                 this.override = new Override(this.runtime);
                 this.tilemaps = new Map;
                 this.tilesets = new Map;
-
-                window.tilemap = this;
                 this.waste = false;
             } else {
                 this.waste = true;
@@ -1567,29 +1567,5 @@
     }
 
     Scratch$1.extensions.register(new TilemapScratch());
-    /// Gandi Ide
-    // window.tempExt = {
-    //     Extension: TilemapScratch,
-    //     info: {
-    //         name: "nights.tilemap.name",
-    //         description: "nights.tilemap.descp",
-    //         extensionId: "nightstilemap",
-    //         //iconURL: _picture,
-    //         //insetIconURL: _icon,
-    //         featured: true,
-    //         disabled: false,
-    //         collaborator: "nights"
-    //     },
-    //     "l10n": {
-    //         "zh-cn": {
-    //             "nights.tilemap.name": "瓦片地图",
-    //             "nights.tilemap.descp": "高性能的瓦片地图渲染器"
-    //         },
-    //         "en": {
-    //             "nights.tilemap.name": "Tilemap",
-    //             "nights.tilemap.descp": "A high-performance tile map renderer"
-    //         }
-    //     }
-    // };
 
 })(Scratch);
