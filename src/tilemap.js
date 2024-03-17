@@ -106,48 +106,23 @@ class Tilemap {
         const stepOffset = { x: 0, y: 0 }
 
         stepOffset.y = this.drawTileNum.y * this.tileSize.y
-        for (let y = -this.drawTileNum.y; y < 0; y++) {
-            this.drawRow(y, stepOffset, toRenderMembers, true)
-        }
-        stepOffset.y = 0
-        for (let y = 0; y < this.drawTileNum.y; y++) {
-            this.drawRow(y, stepOffset, toRenderMembers, false)
-        }
-        for (let y = this.drawTileNum.y; y < this.drawTileNum.y * 2; y++) {
-            this.drawRow(y, stepOffset, toRenderMembers, true)
+        for (let y = -this.drawTileNum.y; y < this.drawTileNum.y * 2; y++) {
+            this.drawRow(y, stepOffset, toRenderMembers, y < 0 || y > this.drawTileNum.y)
         }
     }
     // 需要考察中心出屏幕边界的是否在屏幕里面
-    drawRow(y, stepOffset, toRenderMembers, colBeyondRendering) {
+    drawRow(y, stepOffset, toRenderMembers, beyondRendering) {
 
         let equOffset = 0
         if (this.mode == MAP_MODE.EQUIDISTANCE && y % 2 == 0) {
             equOffset += Math.round(this.tileSize.x / 2)
         }
         stepOffset.x = -this.tileSize.x * this.drawTileNum.x
-        for (let x = -this.drawTileNum.x; x < 0; x++) {
-            this.drawTile(
-                equOffset + stepOffset.x, stepOffset.y,
-                x, this.tileStart.y + y,
-                true
-            )
-            stepOffset.x += this.tileSize.x
-        }
-
-        stepOffset.x = 0
-        for (let x = 0; x < this.drawTileNum.x; x++) {
+        for (let x = -this.drawTileNum.x; x < this.drawTileNum.x * 2; x++) {
             this.drawTile(
                 equOffset + stepOffset.x, stepOffset.y,
                 this.tileStart.x + x, this.tileStart.y + y,
-                colBeyondRendering
-            )
-            stepOffset.x += this.tileSize.x
-        }
-        for (let x = this.drawTileNum.x; x < this.drawTileNum.x * 2; x++) {
-            this.drawTile(
-                equOffset + stepOffset.x, stepOffset.y,
-                x, this.tileStart.y + y,
-                true
+                (x < 0 || x > this.drawTileNum.x) && beyondRendering
             )
             stepOffset.x += this.tileSize.x
         }
@@ -181,24 +156,15 @@ class Tilemap {
 
 
         const rof = tileData.isClip ? [0, 0] : tileData.skin._rotationCenter
-        // if (true) {
-        //     const w = tileData._width * this.scale.x
-        //     const h = tileData._height * this.scale.y
 
-        //     const x = offsetX - rof[0]
-        //     const y = offsetY + rof[1]
-        //     if (offsetY < -180) {
-        //         return
-        //     }
-        // }
         if (beyondRendering) {
-            // const X = (offsetX - rof[1]) * this.scale.x - tileData.offset.y
-            // if (X > this.nativeSize[0]) {
-            //     return
-            // }
-            // if (X + tileData.width < 0) {
-            //     return
-            // }
+            const X = (offsetX - rof[1]) * this.scale.x - tileData.offset.y
+            if (X > this.nativeSize[0]) {
+                return
+            }
+            if (X + tileData.width < 0) {
+                return
+            }
             const Y = (offsetY + rof[1]) * this.scale.y - tileData.offset.y
             if (Y + tileData.height < -this.nativeSize[1]) {
                 return
@@ -215,7 +181,8 @@ class Tilemap {
 
         this.render.addTile(
             texture,
-            tileData.width, tileData.height,
+            tileData.width,
+            tileData.height,
             clip.x, clip.y,
             clip.width, clip.height,
             offsetX - rof[0], offsetY + rof[1],

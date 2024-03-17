@@ -7,12 +7,13 @@ const translate = (id) => {
 
 export default (Scratch) => {
     Scratch.translate.setup(lang)
-    console.log(Scratch)
     return {
         id: 'nightstilemap',
         name: '瓦片地图',
         color1: "#604020",
+        docsURI: "",
         blocks: [
+            
             {
                 blockType: Scratch.BlockType.LABEL,
                 text: "基础操作"

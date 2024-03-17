@@ -7,7 +7,7 @@ const INDEX_PER_TILE = 6
 //                       aPosition  aRegion   aTextureId  aColor
 const BYTES_PER_VERTEX = (4 * 2) + (4 * 2) + (4) + (4)
 const FLOAT32_PER_TILE = VERTEX_PER_TILE * BYTES_PER_VERTEX / Float32Array.BYTES_PER_ELEMENT
-
+// 不多创建一个drawable，节省内存
 const drawableAttribute = {
     enabledEffects: false,
     _direction: 90
@@ -15,7 +15,6 @@ const drawableAttribute = {
 
 class TilemapRender {
     constructor(runtime) {
-        console.log("render 启动！")
         this._render = runtime.renderer
 
         this.twgl = this._render.exports.twgl
@@ -228,7 +227,7 @@ class TilemapRender {
     }
     getTexture(skin, scale) {
         const gl = this._gl
-        // 不多创建一个drawable，节省内存
+        
         const texture = skin.getTexture(scale)
         if (!skin.tilemapInit) {
             skin.tilemapInit = true
