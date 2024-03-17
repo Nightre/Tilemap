@@ -23,4 +23,4 @@ export const SCRATCH_TYEP = {
   TURBOWARP: "turbowarp",
 };
 
-export const SCRATCH_BUILD_TYPE = SCRATCH_TYEP.GANDI;
+export const SCRATCH_BUILD_TYPE = SCRATCH_TYEP.TURBOWARP;
