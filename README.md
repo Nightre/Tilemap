@@ -7,6 +7,13 @@
 export const SCRATCH_BUILD_TYPE = SCRATCH_TYEP.GANDI
 export const SCRATCH_BUILD_TYPE = SCRATCH_TYEP.TURBOWARP
 ```
+
+# 给hcn的话
+
+文件在`dist/tilemap`中
+
+信息在：`info.json`
+
 # TODO:
 
 * test

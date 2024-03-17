@@ -96,7 +96,7 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
     }
 
     this._regionId = null;
-    this.tilemapFirstRender = true
+    this.tilemapFirstRender = false
 }
 
 export class Override {
@@ -108,7 +108,7 @@ export class Override {
         runtime.renderer.draw = function () {
             window.tilemapDrawcalls = 0
             // this.tilemapFirstRender gandi ide 雷神会绘制两次
-            runtime.renderer.tilemapFirstRender = false
+            runtime.renderer.tilemapFirstRender = true
             oldDraw.call(runtime.renderer)
         }
     }

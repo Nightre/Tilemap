@@ -215,28 +215,28 @@ class TilemapScratch {
     }
 }
 
-// Scratch.extensions.register(new TilemapScratch());
+Scratch.extensions.register(new TilemapScratch());
 /// Gandi Ide
-window.tempExt = {
-    Extension: TilemapScratch,
-    info: {
-        name: "nights.tilemap.name",
-        description: "nights.tilemap.descp",
-        extensionId: "nightstilemap",
-        //iconURL: _picture,
-        //insetIconURL: _icon,
-        featured: true,
-        disabled: false,
-        collaborator: "nights"
-    },
-    "l10n": {
-        "zh-cn": {
-            "nights.tilemap.name": "瓦片地图",
-            "nights.tilemap.descp": "高性能的瓦片地图渲染器"
-        },
-        "en": {
-            "nights.tilemap.name": "Tilemap",
-            "nights.tilemap.descp": "A high-performance tile map renderer"
-        }
-    }
-};
+// window.tempExt = {
+//     Extension: TilemapScratch,
+//     info: {
+//         name: "nights.tilemap.name",
+//         description: "nights.tilemap.descp",
+//         extensionId: "nightstilemap",
+//         //iconURL: _picture,
+//         //insetIconURL: _icon,
+//         featured: true,
+//         disabled: false,
+//         collaborator: "nights"
+//     },
+//     "l10n": {
+//         "zh-cn": {
+//             "nights.tilemap.name": "瓦片地图",
+//             "nights.tilemap.descp": "高性能的瓦片地图渲染器"
+//         },
+//         "en": {
+//             "nights.tilemap.name": "Tilemap",
+//             "nights.tilemap.descp": "A high-performance tile map renderer"
+//         }
+//     }
+// };
