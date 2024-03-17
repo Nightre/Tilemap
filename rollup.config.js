@@ -1,7 +1,6 @@
-import server from 'rollup-plugin-server'
 import { string } from "rollup-plugin-string";
-import { uglify } from "rollup-plugin-uglify";
 import image from '@rollup/plugin-image';
+import banner2 from 'rollup-plugin-banner2'
 
 export default {
     input: `src/index.js`,
@@ -25,6 +24,15 @@ export default {
                 "**/*.vert"
             ]
         }),
+        banner2(() => 
+`
+// Name: Tilemap Render
+// ID: nightstilemap
+// Description: High Performance Tile Map Renderer
+// By: Nights <https://scratch.mit.edu/users/seamud>
+// License: MIT
+`
+        )
         // server({
         //     contentBase: ['dist'],
         //     port: 8000,

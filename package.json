@@ -4,17 +4,25 @@
   "description": "",
   "main": "rollup.config.js",
   "scripts": {
-    "dev": "rollup -c -w"
+    "dev": "rollup -c -w",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
   "type": "module",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-image": "^3.0.3",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.29.1",
     "rollup": "^4.12.1",
     "rollup-plugin-server": "^0.7.0",
     "rollup-plugin-string": "^3.0.0",
     "rollup-plugin-uglify": "^6.0.4"
+  },
+  "dependencies": {
+    "rollup-plugin-banner": "^0.2.1",
+    "rollup-plugin-banner2": "^1.2.2"
   }
 }
