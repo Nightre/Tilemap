@@ -72,6 +72,10 @@ class Tilemap {
             x: Math.ceil(this.nativeSize[0] / (this.tileSize.x * this.scale.x)) + 1,
             y: Math.ceil(this.nativeSize[1] / (this.tileSize.y * this.scale.y)) + 1
         }
+        this.haflDrawNum = {
+            x: Math.ceil(this.drawTileNum.x / 2),
+            y: Math.ceil(this.drawTileNum.y / 2),
+        }
         const model = m4.identity()
         m4.translate(model, [-this.nativeSize[0] / 2, this.nativeSize[1] / 2, 0], model)
         m4.scale(model, [this.scale.x, this.scale.y, 1], model)
@@ -101,30 +105,35 @@ class Tilemap {
 
         const stepOffset = { x: 0, y: 0 }
 
+        stepOffset.y = this.drawTileNum.y * this.tileSize.y
+        for (let y = -this.drawTileNum.y; y < 0; y++) {
+            this.drawRow(y, stepOffset, toRenderMembers, true)
+        }
+        stepOffset.y = 0
         for (let y = 0; y < this.drawTileNum.y; y++) {
             this.drawRow(y, stepOffset, toRenderMembers, false)
         }
-        // for (let y = 0; y < this.drawTileNum.y; y++) {
-        //     this.drawRow(y + this.drawTileNum.y, stepOffset, toRenderMembers, true)
-        // }
+        for (let y = this.drawTileNum.y; y < this.drawTileNum.y * 2; y++) {
+            this.drawRow(y, stepOffset, toRenderMembers, true)
+        }
     }
+    // 需要考察中心出屏幕边界的是否在屏幕里面
     drawRow(y, stepOffset, toRenderMembers, colBeyondRendering) {
 
         let equOffset = 0
         if (this.mode == MAP_MODE.EQUIDISTANCE && y % 2 == 0) {
             equOffset += Math.round(this.tileSize.x / 2)
         }
-        // rowBeyondRendering
-        // stepOffset.x = -this.tileSize.x * this.drawTileNum.x
-        // for (let x = -this.drawTileNum.x; x < 0; x++) {
-        //     this.drawTile(
-        //         equOffset + stepOffset.x, stepOffset.y,
-        //         this.tileStart.x + x, this.tileStart.y + y,
-        //         true
-        //     )
-        //     stepOffset.x += this.tileSize.x
-        // }
-        // rowBeyondRendering
+        stepOffset.x = -this.tileSize.x * this.drawTileNum.x
+        for (let x = -this.drawTileNum.x; x < 0; x++) {
+            this.drawTile(
+                equOffset + stepOffset.x, stepOffset.y,
+                x, this.tileStart.y + y,
+                true
+            )
+            stepOffset.x += this.tileSize.x
+        }
+
         stepOffset.x = 0
         for (let x = 0; x < this.drawTileNum.x; x++) {
             this.drawTile(
@@ -134,14 +143,14 @@ class Tilemap {
             )
             stepOffset.x += this.tileSize.x
         }
-        // for (let x = this.drawTileNum.x; x < this.drawTileNum.x * 2; x++) {
-        //     this.drawTile(
-        //         equOffset + stepOffset.x, stepOffset.y,
-        //         this.tileStart.x + x, this.tileStart.y + y,
-        //         true
-        //     )
-        //     stepOffset.x += this.tileSize.x
-        // }
+        for (let x = this.drawTileNum.x; x < this.drawTileNum.x * 2; x++) {
+            this.drawTile(
+                equOffset + stepOffset.x, stepOffset.y,
+                x, this.tileStart.y + y,
+                true
+            )
+            stepOffset.x += this.tileSize.x
+        }
         this.render.drawMembers(this.tileStart.y + y, toRenderMembers)
         stepOffset.y -= this.tileSize.y
     }
@@ -169,7 +178,7 @@ class Tilemap {
         /** @type {TileData} */
         const tileData = this.currentTileset.mapping.get(id)
         if (!tileData) return // 呗删掉的tileset
-        const clip = tileData.clip
+
 
         const rof = tileData.isClip ? [0, 0] : tileData.skin._rotationCenter
         // if (true) {
@@ -183,14 +192,22 @@ class Tilemap {
         //     }
         // }
         if (beyondRendering) {
-            // TODO: 矩阵偏移
-            if (offsetY + rof[1] - tileData.height < -this.nativeSize[1]) {
+            // const X = (offsetX - rof[1]) * this.scale.x - tileData.offset.y
+            // if (X > this.nativeSize[0]) {
+            //     return
+            // }
+            // if (X + tileData.width < 0) {
+            //     return
+            // }
+            const Y = (offsetY + rof[1]) * this.scale.y - tileData.offset.y
+            if (Y + tileData.height < -this.nativeSize[1]) {
                 return
             }
-            if (offsetX - rof[0] + tileData.width < 0 || offsetX - rof[0] > this.nativeSize[0]) {
+            if (Y > 0) {
                 return
             }
         }
+        const clip = tileData.clip
         const texture = tileData.getTexture([
             this.scale.x * clip.width,
             this.scale.y * clip.height

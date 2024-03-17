@@ -51,6 +51,8 @@ export class TileData {
             this.color = htmlColorToUint32Color(data.color)
         }
 
+        // data 必须有，tile检测是否在屏幕内要用
+        this.offset = data.offset ?? this.data.offset ?? { x: 0, y: 0 }
         const newData = Object.assign({}, this.data);
         // 合并this.data和data，若有重复字段，以data的值为准
         Object.assign(newData, data);
@@ -60,7 +62,7 @@ export class TileData {
     // 根据大小updateClip
     updateClip(clip = this.data.clip) {
         const skinSize = this.skin.size
-        
+
         this.clip = {
             x: coalesce(clip?.x / skinSize[0], 0),
             y: coalesce(clip?.y / skinSize[1], 0),

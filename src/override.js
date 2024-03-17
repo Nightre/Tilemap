@@ -107,6 +107,8 @@ export class Override {
         const oldDraw = runtime.renderer.draw
         runtime.renderer.draw = function () {
             window.tilemapDrawcalls = 0
+            // const gl = this._gl
+            //gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
             // this.tilemapFirstRender gandi ide 雷神会绘制两次
             runtime.renderer.tilemapFirstRender = true
             oldDraw.call(runtime.renderer)

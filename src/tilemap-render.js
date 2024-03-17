@@ -30,7 +30,6 @@ class TilemapRender {
         this.count = 0
 
         const gl = this._gl
-
         this._program = createProgramInfo(gl, this.twgl, this.MAX_TEXTURE_UNITS)
 
         this._vertexData = new ArrayBuffer(BYTES_PER_VERTEX * VERTEX_PER_TILE * this.MAX_BATCH)

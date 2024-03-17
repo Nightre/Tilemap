@@ -1,4 +1,4 @@
-precision mediump float;
+precision lowp float;
 
 attribute vec2 aPosition;
 attribute vec2 aRegion;
