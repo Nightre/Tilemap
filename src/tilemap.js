@@ -25,7 +25,7 @@ class Tilemap {
         this.tilesetName = null
         this.mapData = new TilemapData()
         this.layer = 0
-        this.mode = MAP_MODE.ORTHOGONAL
+        this.mode = MAP_MODE.SQUARE
         this.drawable = drawable
         this.members = new Set
         this.show = true
@@ -41,10 +41,10 @@ class Tilemap {
         const m4 = this.render.twgl.m4
         const drawable = this.drawable
         switch (this.mode) {
-            case MAP_MODE.EQUIDISTANCE:
+            case MAP_MODE.ISOMETRIC:
                 this.tileSize.y = Math.round(this.retlTileSize.y / 2)
                 break;
-            case MAP_MODE.ORTHOGONAL:
+            case MAP_MODE.SQUARE:
                 this.tileSize.y = this.retlTileSize.y
                 break;
             default:
@@ -114,7 +114,7 @@ class Tilemap {
     drawRow(y, stepOffset, toRenderMembers, beyondRendering) {
 
         let equOffset = 0
-        if (this.mode == MAP_MODE.EQUIDISTANCE && y % 2 == 0) {
+        if (this.mode == MAP_MODE.ISOMETRIC && y % 2 == 0) {
             equOffset += Math.round(this.tileSize.x / 2)
         }
         stepOffset.x = -this.tileSize.x * this.drawTileNum.x

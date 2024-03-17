@@ -4,8 +4,8 @@ export const SHOW_MODE = {
 }
 
 export const MAP_MODE = {
-    ORTHOGONAL: "orthogonal",
-    EQUIDISTANCE: "equidistance"
+    SQUARE: "orthogonal",
+    ISOMETRIC: "equidistance"
 }
 
 export const ROUND_TYEP = {

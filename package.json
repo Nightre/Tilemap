@@ -11,6 +11,7 @@
   "type": "module",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-image": "^3.0.3",
     "rollup": "^4.12.1",
     "rollup-plugin-server": "^0.7.0",
     "rollup-plugin-string": "^3.0.0",

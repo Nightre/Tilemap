@@ -1,6 +1,8 @@
 import server from 'rollup-plugin-server'
 import { string } from "rollup-plugin-string";
 import { uglify } from "rollup-plugin-uglify";
+import image from '@rollup/plugin-image';
+
 export default {
     input: `src/index.js`,
     external: ['Scratch'],
@@ -16,6 +18,7 @@ export default {
     ],
     plugins: [
         //uglify(),
+        image(),
         string({
             include: [
                 "**/*.frag",
@@ -28,7 +31,6 @@ export default {
         //     headers: {
         //         'Access-Control-Allow-Origin': '*',
         //         'Access-Control-Allow-Methods': '*',
-
         //     }
         // }),
     ],

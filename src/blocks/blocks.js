@@ -1,5 +1,6 @@
 import { MAP_MODE, POS_ATT, SHOW_MODE } from "../const";
 import lang from "./lang";
+import logo from '../images/icon.png';
 
 const translate = (id) => {
     return Scratch.translate({ id, default: lang.en[id] })
@@ -9,23 +10,24 @@ export default (Scratch) => {
     Scratch.translate.setup(lang)
     return {
         id: 'nightstilemap',
-        name: '瓦片地图',
-        color1: "#604020",
-        docsURI: "",
+        name: translate("nights.tilemap.name"),
+        color1: "#3CB371",
+        blockIconURI: logo,
+        docsURI: "https://github.com/Nightre/Tilemap/blob/main/docs.md",
         blocks: [
             
             {
                 blockType: Scratch.BlockType.LABEL,
-                text: "基础操作"
+                text: translate("nights.tilemap.base")
             },
             {
                 opcode: 'setShowMode',
-                text: "地图[NAME] [MODE]",
+                text: translate("nights.tilemap.setShowMode"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                     MODE: {
                         type: Scratch.ArgumentType.STRING,
@@ -35,12 +37,12 @@ export default (Scratch) => {
             },
             {
                 opcode: 'updateTilemap',
-                text: "创建/更新 该角色的[NAME]地图 瓦片大小:[TILE_SIZE_X] [TILE_SIZE_Y] 层:[LAYER] 瓦片集:[TILE_SET] 模式: [TILEMAP_MODE]",
+                text: translate("nights.tilemap.updateTilemap"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                     LAYER: {
                         type: Scratch.ArgumentType.NUMBER,
@@ -48,7 +50,7 @@ export default (Scratch) => {
                     },
                     TILE_SET: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "城市",
+                        defaultValue: translate("nights.tilemap.default.tilesetName"),
                     },
                     TILE_SIZE_X: {
                         type: Scratch.ArgumentType.NUMBER,
@@ -66,12 +68,12 @@ export default (Scratch) => {
             },
             {
                 opcode: 'destoryTilemap',
-                text: "销毁[NAME]地图",
+                text: translate("nights.tilemap.destoryTilemap"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                 }
             },
@@ -79,11 +81,11 @@ export default (Scratch) => {
 
             {
                 blockType: Scratch.BlockType.LABEL,
-                text: "地图数据"
+                text: translate("nights.tilemap.mapdata")
             },
             {
                 opcode: 'resizeTileData',
-                text: "设置[NAME]地图大小 :[SIZE_X] [SIZE_Y]（不会清除原本数据）",
+                text: translate("nights.tilemap.resizeTileData"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     SIZE_X: {
@@ -96,13 +98,13 @@ export default (Scratch) => {
                     },
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                 }
             },
             {
                 opcode: 'setTileData',
-                text: "设置[NAME]地图数据 位置:[POS_X] [POS_Y] 为 [VALUE]",
+                text: translate("nights.tilemap.setTileData"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     POS_X: {
@@ -115,28 +117,28 @@ export default (Scratch) => {
                     },
                     VALUE: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: '马路1',
+                        defaultValue: translate("nights.tilemap.default.tileDataName"),
                     },
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                 }
             },
             {
                 opcode: 'clearTileData',
-                text: "清除[NAME]地图数据",
+                text: translate("nights.tilemap.clearTileData"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                 }
             },
             {
                 opcode: 'getTileName',
-                text: "获取[NAME]地图 位置:[POS_X] [POS_Y] 瓦片的名称",
+                text: translate("nights.tilemap.getTileName"),
                 blockType: Scratch.BlockType.REPORTER,
                 arguments: {
                     POS_X: {
@@ -149,78 +151,78 @@ export default (Scratch) => {
                     },
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                 }
             },
 
             {
                 blockType: Scratch.BlockType.LABEL,
-                text: "地图集合"
+                text: translate("nights.tilemap.tileset")
             },
             // {
             //     opcode: 'getAllTileSet',
-            //     text: "获取[NAME]瓦片集的JSON数据",
+            //     text: translate("nights.tilemap."),
             //     blockType: Scratch.BlockType.REPORTER,
             //     arguments: {
             //         NAME: {
             //             type: Scratch.ArgumentType.STRING,
-            //             defaultValue: "城市",
+            //             defaultValue: translate("nights.tilemap.default.tilesetName"),
             //         },
             //     }
             // },
             {
                 opcode: 'createTileSet',
-                text: "创建/更新 [NAME]瓦片集的瓦片 名字:[TILE_NAME] 数据:[DATA]",
+                text: translate("nights.tilemap.createTileSet"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "城市",
+                        defaultValue: translate("nights.tilemap.default.tilesetName"),
                     },
                     TILE_NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "马路1",
+                        defaultValue: translate("nights.tilemap.default.tileDataName"),
                     },
                     DATA: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: JSON.stringify({ "texture": "造型1", "clip": { "x": 0, "y": 0, "width": 50, "height": 50 }, "scale": { "x": 1, "y": 1 }, "offset": { "x": 0, "y": 0 }, "anchor": { "x": 25, "y": -25 }, "rotate": 90, "color": "FFFFFF" })
+                        defaultValue: JSON.stringify({ "texture": translate("nights.tilemap.default.texture"), "clip": { "x": 0, "y": 0, "width": 50, "height": 50 }, "scale": { "x": 1, "y": 1 }, "offset": { "x": 0, "y": 0 }, "anchor": { "x": 25, "y": -25 }, "rotate": 90, "color": "FFFFFFFF" })
                     }
                 }
             },
             {
                 opcode: 'removeTileSet',
-                text: "移除[NAME]瓦片集的[TILE_NAME]瓦片",
+                text: translate("nights.tilemap.removeTileSet"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "城市",
+                        defaultValue: translate("nights.tilemap.default.tilesetName"),
                     },
                     TILE_NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "城市",
+                        defaultValue: translate("nights.tilemap.default.tilesetName"),
                     }
                 }
             },
             {
                 blockType: Scratch.BlockType.LABEL,
-                text: "图层排序"
+                text: translate("nights.tilemap.layer")
             },
             {
                 opcode: 'joinTileMapLayer',
-                text: "加入[NAME]地图图层",
+                text: translate("nights.tilemap.joinTileMapLayer"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                 }
             },
             {
                 opcode: 'setLayerInTileMap',
-                text: "设置我在当前地图的图层为地图的第[LAYER]行",
+                text: translate("nights.tilemap.setLayerInTileMap"),
                 blockType: Scratch.BlockType.COMMAND,
                 arguments: {
                     LAYER: {
@@ -232,21 +234,21 @@ export default (Scratch) => {
             },
             {
                 opcode: 'quitTileMap',
-                text: "退出当前所在的图层",
+                text: translate("nights.tilemap.quitTileMap"),
                 blockType: Scratch.BlockType.COMMAND,
             },
             {
                 blockType: Scratch.BlockType.LABEL,
-                text: "坐标"
+                text: translate("nights.tilemap.position")
             },
             {
                 opcode: 'posToMap',
-                text: "世界坐标 [POS_X] [POS_Y] 转[NAME]地图的坐标 [POS_ATT]",
+                text: translate("nights.tilemap.posToMap"),
                 blockType: Scratch.BlockType.REPORTER,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                     POS_ATT: {
                         type: Scratch.ArgumentType.STRING,
@@ -264,12 +266,12 @@ export default (Scratch) => {
             },
             {
                 opcode: 'mapToPos',
-                text: "[NAME]地图的坐标 [POS_X] [POS_Y] 转世界坐标 [POS_ATT]",
+                text: translate("nights.tilemap.mapToPos"),
                 blockType: Scratch.BlockType.REPORTER,
                 arguments: {
                     NAME: {
                         type: Scratch.ArgumentType.STRING,
-                        defaultValue: "地面",
+                        defaultValue: translate("nights.tilemap.default.mapName"),
                     },
                     POS_ATT: {
                         type: Scratch.ArgumentType.STRING,
@@ -287,11 +289,11 @@ export default (Scratch) => {
             },
             // {
             //     blockType: Scratch.BlockType.LABEL,
-            //     text: "碰撞"
+            //     text: translate("nights.tilemap.")
             // },
             // {
             //     opcode: 'collisionWithTilemap',
-            //     text: "是否碰到[NAME]地图的[POS_X] [POS_Y]的瓦片",
+            //     text: translate("nights.tilemap."),
             //     blockType: Scratch.BlockType.BOOLEAN,
             //     arguments: {
             //         POS_X: {
@@ -304,7 +306,7 @@ export default (Scratch) => {
             //         },
             //         NAME: {
             //             type: Scratch.ArgumentType.NUMBER,
-            //             defaultValue: "地面",
+            //             defaultValue: translate("nights.tilemap.default.mapName"),
             //         },
             //     }
             // }
@@ -313,12 +315,12 @@ export default (Scratch) => {
             TILEMAP_MODE: {
                 items: [
                     {
-                        value: MAP_MODE.ORTHOGONAL,
-                        text: "正交地图",
+                        value: MAP_MODE.SQUARE,
+                        text: translate("nights.tilemap.mapMode.square"),
                     },
                     {
-                        value: MAP_MODE.EQUIDISTANCE,
-                        text: "等距地图",
+                        value: MAP_MODE.ISOMETRIC,
+                        text: translate("nights.tilemap.mapMode.isometric"),
                     },
                 ]
             },
@@ -326,11 +328,11 @@ export default (Scratch) => {
                 items: [
                     {
                         value: SHOW_MODE.SHOW,
-                        text: "显示",
+                        text: translate("nights.tilemap.showMode.show"),
                     },
                     {
                         value: SHOW_MODE.HIDE,
-                        text: "隐藏",
+                        text: translate("nights.tilemap.showMode.hide"),
                     },
                 ]
             },
