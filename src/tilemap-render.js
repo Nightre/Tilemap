@@ -172,7 +172,7 @@ class TilemapRender {
             gl.activeTexture(gl.TEXTURE0 + unit);
             gl.bindTexture(gl.TEXTURE_2D, texture);
         }
-        window.tilemapDrawcalls += 1
+        //window.tilemapDrawcalls += 1
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._typedVertexFloat.subarray(0, this.count * FLOAT32_PER_TILE))
         gl.drawElements(gl.TRIANGLES, this.count * INDEX_PER_TILE, gl.UNSIGNED_SHORT, 0)
         this._afterFlush()

@@ -10,8 +10,11 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
     );
 
     const numDrawables = drawables.length;
+    // By:nights start
     // this.tilemapFirstRender gandi ide 雷神会绘制两次
+    // 判断是否需要绘制tilemap
     const canDrawTilemap = drawMode == 'default' && projection == this._projection && this.tilemapFirstRender
+    // By:nights end
 
     for (let drawableIndex = 0; drawableIndex < numDrawables; ++drawableIndex) {
         const drawableID = drawables[drawableIndex];
@@ -20,9 +23,12 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
         if (opts.filter && !opts.filter(drawableID)) continue;
 
         const drawable = this._allDrawables[drawableID];
+        // By:nights start
+        // 如果有tilemap的跳过绘制，就跳过
         if (canDrawTilemap && drawable.tilemapData && drawable.tilemapData.skipDraw) {
             continue
         }
+        // By:nights end
         /** @todo check if drawable is inside the viewport before anything else */
 
         // Hidden drawables (e.g., by a "hide" block) are not drawn unless
@@ -42,18 +48,21 @@ function _drawThese(drawables, drawMode, projection, opts = {}) {
 
         // Skip private skins, if requested.
         if (opts.skipPrivateSkins && drawable.skin.private) continue;
-
+        // By:nights start
+        // 绘制tilemap
         if (canDrawTilemap && drawable.tilemapData && drawable.tilemapData.drawTilemaps) {
-            let enterRegion = false
-            if (this._regionId !== "tilemap") {
-                this._doExitDrawRegion();
-                this._regionId = "tilemap";
+            let enterRegion = false // 是否进入tilemap region
+            if (this._regionId !== "tilemap") { // region 不是tilemap
+                this._doExitDrawRegion(); // 退出之前的region
+                this._regionId = "tilemap"; // 设置regionid
+                // 设置退出tilemap region操作
                 this._exitRegion = drawable.tilemapData.exitTilemapRegion
                 enterRegion = true
             }
+            // 告诉tilemap是否是enterRegion以进行进入Region初始化操作
             drawable.tilemapData.drawTilemaps(enterRegion, opts)
         }
-
+        // By:nights end
         const uniforms = {};
 
         let effectBits = drawable.enabledEffects;
@@ -106,9 +115,6 @@ export class Override {
         };
         const oldDraw = runtime.renderer.draw
         runtime.renderer.draw = function () {
-            window.tilemapDrawcalls = 0
-            // const gl = this._gl
-            //gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
             // this.tilemapFirstRender gandi ide 雷神会绘制两次
             runtime.renderer.tilemapFirstRender = true
             oldDraw.call(runtime.renderer)
