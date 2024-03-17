@@ -26,11 +26,7 @@ export default {
         }),
         banner2(() => 
 `
-// Name: Tilemap Render
-// ID: nightstilemap
-// Description: High Performance Tile Map Renderer
-// By: Nights <https://scratch.mit.edu/users/seamud>
-// License: MIT
+// Tilemap
 `
         )
         // server({

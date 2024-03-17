@@ -1,9 +1,5 @@
 
-// Name: Tilemap Render
-// ID: nightstilemap
-// Description: High Performance Tile Map Renderer
-// By: Nights <https://scratch.mit.edu/users/seamud>
-// License: MIT
+// Tilemap
 (function (Scratch$1) {
   'use strict';
 
@@ -32,7 +28,7 @@
     TURBOWARP: "turbowarp",
   };
 
-  const SCRATCH_BUILD_TYPE = SCRATCH_TYEP.TURBOWARP;
+  const SCRATCH_BUILD_TYPE = SCRATCH_TYEP.GANDI;
 
   const createBuffer = (gl, bufferType, size, usage) => {
     let buffer = gl.createBuffer();
@@ -530,6 +526,7 @@
       // gl.scissor(0, 0, gl.canvas.width, gl.canvas.height);
 
       const gl = this._gl;
+      this.twgl.bindFramebufferInfo(gl, null);
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indexBufferObject);
       gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBufferObject);

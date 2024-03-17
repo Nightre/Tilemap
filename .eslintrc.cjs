@@ -74,4 +74,5 @@ module.exports = {
     // significantly impacts the behavior of projects.
     'require-await': 'error',
   },
+  
 };
